@@ -2,6 +2,7 @@
 "use client"
 
 import * as React from "react"
+import { Suspense } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Plane, MapPin, Calendar, Search, ArrowLeftRight, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -12,7 +13,7 @@ import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, Command
 import { cn } from "@/lib/utils"
 import type { Airport } from "@/lib/mock-data"
 
-export function SearchWidget() {
+function SearchWidgetContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
 
@@ -291,5 +292,31 @@ export function SearchWidget() {
                 </div>
             </div>
         </div>
+    )
+}
+
+export function SearchWidget() {
+    return (
+        <Suspense fallback={
+            <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl p-5 sm:p-8 md:p-10 max-w-5xl mx-auto border border-blue-100 backdrop-blur-sm">
+                <div className="animate-pulse">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 mb-5 sm:mb-6">
+                        <div className="h-12 bg-slate-200 rounded"></div>
+                        <div className="h-12 bg-slate-200 rounded"></div>
+                        <div className="h-12 bg-slate-200 rounded"></div>
+                    </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-13 gap-4 sm:gap-5">
+                        <div className="lg:col-span-3 h-12 bg-slate-200 rounded"></div>
+                        <div className="lg:col-span-1 h-12 bg-slate-200 rounded"></div>
+                        <div className="lg:col-span-3 h-12 bg-slate-200 rounded"></div>
+                        <div className="lg:col-span-2 h-12 bg-slate-200 rounded"></div>
+                        <div className="lg:col-span-2 h-12 bg-slate-200 rounded"></div>
+                        <div className="lg:col-span-2 h-12 bg-slate-200 rounded"></div>
+                    </div>
+                </div>
+            </div>
+        }>
+            <SearchWidgetContent />
+        </Suspense>
     )
 }
