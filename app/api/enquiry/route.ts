@@ -36,6 +36,10 @@ const enquirySchema = z.object({
     email: z.string().email().optional(),
     phone: z.string().optional(),
     message: z.string().optional(),
+    from: z.string().optional(),
+    to: z.string().optional(),
+    date: z.string().optional(),
+    passengerCount: z.union([z.string(), z.number()]).optional(),
 
     // Booking Wizard Fields - Array of passengers
     passengers: z.array(z.object({
@@ -145,6 +149,113 @@ export async function POST(req: Request) {
             : data.phone;
 
         const createEmailHTML = () => {
+            // For simple enquiries (not bookings)
+            if (!isBooking) {
+                return `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <meta charset="utf-8">
+                    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    <title>New Travel Enquiry</title>
+                </head>
+                <body style="margin: 0; padding: 0; background-color: #f1f5f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;">
+                    <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+                        <!-- Header -->
+                        <div style="background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%); padding: 32px; text-align: center;">
+                            <h1 style="margin: 0; color: #ffffff; font-size: 28px; font-weight: 700;">
+                                ✈️ New Travel Enquiry
+                            </h1>
+                            <p style="margin: 8px 0 0 0; color: #ffffff; font-size: 14px;">
+                                A customer has submitted a travel enquiry
+                            </p>
+                        </div>
+
+                        <!-- Content -->
+                        <div style="padding: 32px;">
+                            <!-- Customer Details -->
+                            <div style="background: #f8fafc; border-left: 4px solid #3b82f6; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+                                <h2 style="margin: 0 0 16px 0; color: #1e293b; font-size: 20px;">
+                                    👤 Customer Details
+                                </h2>
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #64748b; width: 30%;">Name</td>
+                                        <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${data.name || 'Not provided'}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #64748b;">Email</td>
+                                        <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${data.email || 'Not provided'}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #64748b;">Phone</td>
+                                        <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${data.phone || 'Not provided'}</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            <!-- Travel Details -->
+                            <div style="background: #eff6ff; border-left: 4px solid #3b82f6; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+                                <h2 style="margin: 0 0 16px 0; color: #1e40af; font-size: 20px;">
+                                    🛫 Travel Details
+                                </h2>
+                                <table style="width: 100%; border-collapse: collapse;">
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #64748b; width: 30%;">From</td>
+                                        <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${data.from || 'Not specified'}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #64748b;">To</td>
+                                        <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${data.to || 'Not specified'}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #64748b;">Preferred Date</td>
+                                        <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${data.date || 'Not specified'}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #64748b;">Passengers</td>
+                                        <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${data.passengerCount || 1}</td>
+                                    </tr>
+                                </table>
+                            </div>
+
+                            ${data.message ? `
+                                <!-- Message -->
+                                <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+                                    <h3 style="margin: 0 0 12px 0; color: #92400e; font-size: 18px;">
+                                        💬 Message
+                                    </h3>
+                                    <p style="margin: 0; color: #78350f; white-space: pre-wrap; line-height: 1.6;">
+                                        ${data.message}
+                                    </p>
+                                </div>
+                            ` : ''}
+
+                            <!-- Action Required -->
+                            <div style="background: #f1f5f9; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
+                                <h3 style="margin: 0 0 12px 0; color: #334155; font-size: 18px;">📧 Next Steps</h3>
+                                <p style="margin: 0; color: #475569; line-height: 1.6;">
+                                    Please respond to this enquiry within 24 hours. Contact the customer at <strong>${data.email}</strong> or call <strong>${data.phone}</strong>
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div style="background: #1e293b; padding: 24px; text-align: center;">
+                            <p style="margin: 0; color: #94a3b8; font-size: 12px;">
+                                This enquiry was received from the Gatefare website
+                            </p>
+                            <p style="margin: 8px 0 0 0; color: #64748b; font-size: 11px;">
+                                ${new Date().toLocaleString('en-US', { dateStyle: 'full', timeStyle: 'short' })}
+                            </p>
+                        </div>
+                    </div>
+                </body>
+                </html>
+                `;
+            }
+
+            // For booking requests (existing code)
             const passengersHTML = data.passengers?.map((p, i) => `
                 <tr style="border-bottom: 1px solid #e2e8f0;">
                     <td style="padding: 12px; color: #334155;">${i + 1}</td>

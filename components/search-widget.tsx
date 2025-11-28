@@ -2,7 +2,7 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Plane, MapPin, Calendar, Search, ArrowLeftRight, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,6 +14,8 @@ import type { Airport } from "@/lib/mock-data"
 
 export function SearchWidget() {
     const router = useRouter()
+    const searchParams = useSearchParams()
+
     const [searchData, setSearchData] = React.useState({
         tripType: "Return",
         passengers: "1",
@@ -28,6 +30,30 @@ export function SearchWidget() {
     const [toOpen, setToOpen] = React.useState(false)
     const [airports, setAirports] = React.useState<Airport[]>([])
     const [loading, setLoading] = React.useState(false)
+
+    // Load search data from URL params on mount
+    React.useEffect(() => {
+        const from = searchParams.get('from')
+        const to = searchParams.get('to')
+        const date = searchParams.get('date')
+        const passengers = searchParams.get('passengers')
+        const tripType = searchParams.get('tripType')
+        const returnDate = searchParams.get('returnDate')
+        const classType = searchParams.get('classType')
+
+        if (from || to || date || passengers) {
+            setSearchData(prev => ({
+                ...prev,
+                from: from || prev.from,
+                to: to || prev.to,
+                departDate: date || prev.departDate,
+                passengers: passengers || prev.passengers,
+                tripType: tripType || prev.tripType,
+                returnDate: returnDate || prev.returnDate,
+                classType: classType || prev.classType,
+            }))
+        }
+    }, [searchParams])
 
     const searchAirports = async (query: string) => {
         if (query.length < 2) {
@@ -52,9 +78,15 @@ export function SearchWidget() {
             to: searchData.to,
             date: searchData.departDate,
             passengers: searchData.passengers,
+            tripType: searchData.tripType,
+            classType: searchData.classType,
         })
+        if (searchData.returnDate) {
+            params.set('returnDate', searchData.returnDate)
+        }
         router.push(`/flights?${params.toString()}`)
     }
+
 
     return (
         <div className="bg-white rounded-2xl sm:rounded-3xl shadow-xl sm:shadow-2xl p-5 sm:p-8 md:p-10 max-w-5xl mx-auto border border-blue-100 backdrop-blur-sm">

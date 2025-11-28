@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { Mail, Phone, MapPin, CheckCircle2, Loader2 } from "lucide-react"
+import { Mail, Phone, MapPin, CheckCircle2, Loader2, Search, Check, Plane } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -10,6 +10,10 @@ import { useState } from "react"
 import { ConcentricCircles } from "@/components/concentric-circles"
 import { Navbar } from "@/components/navbar"
 import Turnstile from "react-turnstile"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command"
+import { cn } from "@/lib/utils"
+import type { Airport } from "@/lib/mock-data"
 
 export default function EnquiryPage() {
   const [formData, setFormData] = useState({
@@ -27,6 +31,28 @@ export default function EnquiryPage() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
   const [token, setToken] = useState("")
+
+  const [fromOpen, setFromOpen] = useState(false)
+  const [toOpen, setToOpen] = useState(false)
+  const [airports, setAirports] = useState<Airport[]>([])
+  const [loadingAirports, setLoadingAirports] = useState(false)
+
+  const searchAirports = async (query: string) => {
+    if (query.length < 2) {
+      setAirports([])
+      return
+    }
+    setLoadingAirports(true)
+    try {
+      const res = await fetch(`/api/flights/autocomplete?query=${query}`)
+      const data = await res.json()
+      setAirports(data.airports || [])
+    } catch (error) {
+      console.error("Failed to search airports", error)
+    } finally {
+      setLoadingAirports(false)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -49,7 +75,7 @@ export default function EnquiryPage() {
         },
         body: JSON.stringify({
           ...formData,
-          passengers: parseInt(formData.passengers),
+          passengerCount: parseInt(formData.passengers),
           token,
         }),
       })
@@ -150,23 +176,111 @@ export default function EnquiryPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div>
                     <label className="block text-sm font-semibold text-slate-900 mb-2">Departure City *</label>
-                    <Input
-                      required
-                      value={formData.from}
-                      onChange={(e) => setFormData({ ...formData, from: e.target.value })}
-                      placeholder="e.g., London (LHR)"
-                      className="border-blue-200 focus:border-blue-500"
-                    />
+                    <Popover open={fromOpen} onOpenChange={setFromOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className="w-full h-12 border-blue-200 focus:border-blue-500 justify-start text-left font-normal"
+                        >
+                          <Plane className="h-4 w-4 text-blue-600 shrink-0" />
+                          <span className={cn(
+                            "ml-2 truncate",
+                            formData.from ? "text-slate-900" : "text-slate-500"
+                          )}>
+                            {formData.from || "Departure city"}
+                          </span>
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[300px] p-0">
+                        <Command shouldFilter={false}>
+                          <CommandInput
+                            placeholder="Search airport..."
+                            onValueChange={searchAirports}
+                          />
+                          <CommandList>
+                            <CommandEmpty>{loadingAirports ? "Searching..." : "No airport found."}</CommandEmpty>
+                            <CommandGroup>
+                              {airports.map((airport, index) => (
+                                <CommandItem
+                                  key={`${airport.code}-${index}`}
+                                  value={airport.code}
+                                  onSelect={() => {
+                                    setFormData({ ...formData, from: `${airport.city} (${airport.code})` })
+                                    setFromOpen(false)
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      formData.from.includes(airport.code) ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  <div className="flex flex-col">
+                                    <span>{airport.city}</span>
+                                    <span className="text-xs text-muted-foreground">{airport.name} - {airport.code}</span>
+                                  </div>
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-slate-900 mb-2">Destination City *</label>
-                    <Input
-                      required
-                      value={formData.to}
-                      onChange={(e) => setFormData({ ...formData, to: e.target.value })}
-                      placeholder="e.g., Dubai (DXB)"
-                      className="border-blue-200 focus:border-blue-500"
-                    />
+                    <Popover open={toOpen} onOpenChange={setToOpen}>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className="w-full h-12 border-blue-200 focus:border-blue-500 justify-start text-left font-normal"
+                        >
+                          <MapPin className="h-4 w-4 text-blue-600 shrink-0" />
+                          <span className={cn(
+                            "ml-2 truncate",
+                            formData.to ? "text-slate-900" : "text-slate-500"
+                          )}>
+                            {formData.to || "Destination city"}
+                          </span>
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[300px] p-0">
+                        <Command shouldFilter={false}>
+                          <CommandInput
+                            placeholder="Search airport..."
+                            onValueChange={searchAirports}
+                          />
+                          <CommandList>
+                            <CommandEmpty>{loadingAirports ? "Searching..." : "No airport found."}</CommandEmpty>
+                            <CommandGroup>
+                              {airports.map((airport, index) => (
+                                <CommandItem
+                                  key={`${airport.code}-${index}`}
+                                  value={airport.code}
+                                  onSelect={() => {
+                                    setFormData({ ...formData, to: `${airport.city} (${airport.code})` })
+                                    setToOpen(false)
+                                  }}
+                                >
+                                  <Check
+                                    className={cn(
+                                      "mr-2 h-4 w-4",
+                                      formData.to.includes(airport.code) ? "opacity-100" : "opacity-0"
+                                    )}
+                                  />
+                                  <div className="flex flex-col">
+                                    <span>{airport.city}</span>
+                                    <span className="text-xs text-muted-foreground">{airport.name} - {airport.code}</span>
+                                  </div>
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </CommandList>
+                        </Command>
+                      </PopoverContent>
+                    </Popover>
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-slate-900 mb-2">Preferred Date *</label>
@@ -175,7 +289,7 @@ export default function EnquiryPage() {
                       type="date"
                       value={formData.date}
                       onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                      className="border-blue-200 focus:border-blue-500"
+                      className="h-12 border-blue-200 focus:border-blue-500"
                     />
                   </div>
                 </div>

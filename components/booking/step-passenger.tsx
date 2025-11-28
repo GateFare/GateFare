@@ -58,37 +58,43 @@ export function StepPassenger({ passengers, onChange }: StepPassengerProps) {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
+                                <Label className="text-slate-600">First Name <span className="text-red-500">*</span></Label>
                                 <Input
                                     placeholder="Legal first name"
                                     value={passenger.firstName}
                                     onChange={(e) => updatePassenger(index, "firstName", e.target.value)}
                                     className="bg-slate-50 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                                    required
                                 />
                             </div>
                             <div className="space-y-2">
+                                <Label className="text-slate-600">Last Name <span className="text-red-500">*</span></Label>
                                 <Input
                                     placeholder="Legal last name"
                                     value={passenger.lastName}
                                     onChange={(e) => updatePassenger(index, "lastName", e.target.value)}
                                     className="bg-slate-50 border-slate-200 focus:border-blue-500 focus:ring-blue-500"
+                                    required
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <Label className="text-slate-600">Date of Birth</Label>
+                            <Label className="text-slate-600">Date of Birth <span className="text-red-500">*</span></Label>
                             <div className="flex gap-3">
                                 <Input
                                     placeholder="DD"
                                     className="w-20 bg-slate-50 border-slate-200"
                                     value={passenger.dobDay}
                                     onChange={(e) => updatePassenger(index, "dobDay", e.target.value)}
+                                    required
                                 />
                                 <Select
                                     value={passenger.dobMonth}
                                     onValueChange={(v) => updatePassenger(index, "dobMonth", v)}
+                                    required
                                 >
-                                    <SelectTrigger className="flex-1 bg-slate-50 border-slate-200">
+                                    <SelectTrigger className="w-28 bg-slate-50 border-slate-200">
                                         <SelectValue placeholder="Month" />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -102,6 +108,7 @@ export function StepPassenger({ passengers, onChange }: StepPassengerProps) {
                                     className="w-24 bg-slate-50 border-slate-200"
                                     value={passenger.dobYear}
                                     onChange={(e) => updatePassenger(index, "dobYear", e.target.value)}
+                                    required
                                 />
                             </div>
                         </div>
@@ -234,42 +241,50 @@ export function StepPassenger({ passengers, onChange }: StepPassengerProps) {
                 </p>
 
                 <div className="space-y-4">
-                    <Input
-                        type="email"
-                        placeholder="Email address"
-                        value={passengers[0].email}
-                        onChange={(e) => updatePassenger(0, "email", e.target.value)}
-                        className="bg-slate-50 border-slate-200 h-12"
-                    />
-
-                    <div className="flex gap-0">
-                        <Select
-                            value={passengers[0].countryCode}
-                            onValueChange={(v) => updatePassenger(0, "countryCode", v)}
-                        >
-                            <SelectTrigger className="w-[110px] h-[48px] bg-slate-50 border-slate-200 rounded-r-none border-r-0 focus:ring-0 focus:ring-offset-0">
-                                <SelectValue placeholder="+91" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="+91">🇮🇳 +91</SelectItem>
-                                <SelectItem value="+1">🇺🇸 +1</SelectItem>
-                                <SelectItem value="+44">🇬🇧 +44</SelectItem>
-                                <SelectItem value="+971">🇦🇪 +971</SelectItem>
-                                <SelectItem value="+61">🇦🇺 +61</SelectItem>
-                                <SelectItem value="+1-CA">🇨🇦 +1</SelectItem>
-                                <SelectItem value="+49">🇩🇪 +49</SelectItem>
-                                <SelectItem value="+33">🇫🇷 +33</SelectItem>
-                                <SelectItem value="+81">🇯🇵 +81</SelectItem>
-                                <SelectItem value="+86">🇨🇳 +86</SelectItem>
-                            </SelectContent>
-                        </Select>
+                    <div className="space-y-2">
+                        <Label className="text-slate-600">Email Address <span className="text-red-500">*</span></Label>
                         <Input
-                            type="tel"
-                            placeholder="Mobile number"
-                            value={passengers[0].phone}
-                            onChange={(e) => updatePassenger(0, "phone", e.target.value)}
-                            className="bg-slate-50 border-slate-200 rounded-l-none h-[48px]"
+                            type="email"
+                            placeholder="Email address"
+                            value={passengers[0].email}
+                            onChange={(e) => updatePassenger(0, "email", e.target.value)}
+                            className="bg-slate-50 border-slate-200 h-12"
+                            required
                         />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label className="text-slate-600">Phone Number <span className="text-red-500">*</span></Label>
+                        <div className="flex gap-0">
+                            <Select
+                                value={passengers[0].countryCode}
+                                onValueChange={(v) => updatePassenger(0, "countryCode", v)}
+                            >
+                                <SelectTrigger className="w-[110px] h-[48px] bg-slate-50 border-slate-200 rounded-r-none border-r-0 focus:ring-0 focus:ring-offset-0">
+                                    <SelectValue placeholder="+91" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="+91">🇮🇳 +91</SelectItem>
+                                    <SelectItem value="+1">🇺🇸 +1</SelectItem>
+                                    <SelectItem value="+44">🇬🇧 +44</SelectItem>
+                                    <SelectItem value="+971">🇦🇪 +971</SelectItem>
+                                    <SelectItem value="+61">🇦🇺 +61</SelectItem>
+                                    <SelectItem value="+1-CA">🇨🇦 +1</SelectItem>
+                                    <SelectItem value="+49">🇩🇪 +49</SelectItem>
+                                    <SelectItem value="+33">🇫🇷 +33</SelectItem>
+                                    <SelectItem value="+81">🇯🇵 +81</SelectItem>
+                                    <SelectItem value="+86">🇨🇳 +86</SelectItem>
+                                </SelectContent>
+                            </Select>
+                            <Input
+                                type="tel"
+                                placeholder="Mobile number"
+                                value={passengers[0].phone}
+                                onChange={(e) => updatePassenger(0, "phone", e.target.value)}
+                                className="bg-slate-50 border-slate-200 rounded-l-none h-[48px]"
+                                required
+                            />
+                        </div>
                     </div>
                 </div>
 

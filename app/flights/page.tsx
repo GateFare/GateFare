@@ -22,6 +22,10 @@ function FlightResultsContent() {
         airlines: [],
         stops: [],
         sortBy: "price_asc",
+        durationOutbound: [0, 24],
+        durationInbound: [0, 24],
+        departureTimeOutbound: [0, 24],
+        departureTimeInbound: [0, 24],
     })
 
     const from = searchParams.get("from")
@@ -86,6 +90,39 @@ function FlightResultsContent() {
 
             // Airline Filter
             if (filters.airlines.length > 0 && !filters.airlines.includes(flight.airline)) return false
+
+            // Duration Filter
+            const parseDuration = (dur: string): number => {
+                const match = dur.match(/(\d+)h\s*(?:(\d+)m)?/)
+                if (match) {
+                    const hours = parseInt(match[1])
+                    const minutes = match[2] ? parseInt(match[2]) : 0
+                    return hours + minutes / 60
+                }
+                return 0
+            }
+
+            const flightDuration = parseDuration(flight.duration)
+            if (flightDuration < filters.durationOutbound[0] || flightDuration > filters.durationOutbound[1]) return false
+
+            // Departure Time Filter
+            const parseTime = (timeStr: string): number => {
+                const match = timeStr.match(/(\d+):(\d+)\s*(AM|PM)/)
+                if (match) {
+                    let hours = parseInt(match[1])
+                    const minutes = parseInt(match[2])
+                    const period = match[3]
+
+                    if (period === 'PM' && hours !== 12) hours += 12
+                    if (period === 'AM' && hours === 12) hours = 0
+
+                    return hours + minutes / 60
+                }
+                return 0
+            }
+
+            const departureHour = parseTime(flight.departure.time)
+            if (departureHour < filters.departureTimeOutbound[0] || departureHour > filters.departureTimeOutbound[1]) return false
 
             return true
         })
@@ -199,6 +236,10 @@ function FlightResultsContent() {
                                         airlines: [],
                                         stops: [],
                                         sortBy: "price_asc",
+                                        durationOutbound: [0, 24],
+                                        durationInbound: [0, 24],
+                                        departureTimeOutbound: [0, 24],
+                                        departureTimeInbound: [0, 24],
                                     })}
                                 >
                                     Clear all filters

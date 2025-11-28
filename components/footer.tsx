@@ -50,6 +50,23 @@ export function Footer() {
                                 </Link>
                             </li>
                         </ul>
+
+                        {/* Secured By */}
+                        <h5 className="text-xs font-bold text-slate-500 uppercase tracking-wider mt-6 mb-3">Secured By</h5>
+                        <div className="flex flex-wrap gap-3 items-center">
+                            <div className="flex items-center gap-1 bg-white/5 rounded px-2 py-1 border border-slate-700">
+                                <span className="text-xs font-bold text-white">VISA</span>
+                                <span className="text-[10px] text-slate-400">SECURE</span>
+                            </div>
+                            <div className="flex items-center gap-1 bg-white/5 rounded px-2 py-1 border border-slate-700">
+                                <div className="w-4 h-4 rounded-full bg-red-500 opacity-80"></div>
+                                <div className="w-4 h-4 rounded-full bg-yellow-500 opacity-80 -ml-2"></div>
+                                <span className="text-xs text-slate-300 ml-1">ID Check</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <span className="text-lg font-serif italic text-slate-300">SafeKey</span>
+                            </div>
+                        </div>
                     </div>
                     <div>
                         <h4 className="font-semibold text-white mb-4">Support</h4>
@@ -100,30 +117,13 @@ export function Footer() {
                         </div>
 
                         <h4 className="font-semibold text-white mt-6 mb-4">Follow Us</h4>
-                        <div className="flex gap-4 mb-6">
+                        <div className="flex gap-4">
                             <Link href="https://www.facebook.com/profile.php?id=61584546320338" target="_blank" rel="noopener noreferrer" className="bg-slate-800 p-2 rounded-full hover:bg-blue-600 transition-colors text-white">
                                 <Facebook className="w-4 h-4" />
                             </Link>
                             <Link href="https://www.instagram.com/gatefareusllc?igsh=MWJkNWU1d3dxMHhhZA==" target="_blank" rel="noopener noreferrer" className="bg-slate-800 p-2 rounded-full hover:bg-pink-600 transition-colors text-white">
                                 <Instagram className="w-4 h-4" />
                             </Link>
-                        </div>
-
-                        {/* Secured By */}
-                        <h5 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Secured By</h5>
-                        <div className="flex flex-wrap gap-3 items-center">
-                            <div className="flex items-center gap-1 bg-white/5 rounded px-2 py-1 border border-slate-700">
-                                <span className="text-xs font-bold text-white">VISA</span>
-                                <span className="text-[10px] text-slate-400">SECURE</span>
-                            </div>
-                            <div className="flex items-center gap-1 bg-white/5 rounded px-2 py-1 border border-slate-700">
-                                <div className="w-4 h-4 rounded-full bg-red-500 opacity-80"></div>
-                                <div className="w-4 h-4 rounded-full bg-yellow-500 opacity-80 -ml-2"></div>
-                                <span className="text-xs text-slate-300 ml-1">ID Check</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                                <span className="text-lg font-serif italic text-slate-300">SafeKey</span>
-                            </div>
                         </div>
                     </div>
                 </div>

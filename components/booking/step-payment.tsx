@@ -12,6 +12,11 @@ export interface PaymentDetails {
     expiryYear: string
     cvv: string
     country: string
+    addressLine1: string
+    addressLine2: string
+    city: string
+    state: string
+    zipCode: string
 }
 
 interface StepPaymentProps {
@@ -67,7 +72,7 @@ export function StepPayment({ details, onChange }: StepPaymentProps) {
     // Determine card type for visual
     const getCardType = (number: string) => {
         if (number.startsWith('4')) return 'Visa'
-        if (number.startsWith('5')) return 'Mastercard'
+        if (number.startsWith('5') || number.startsWith('2')) return 'Mastercard'
         if (number.startsWith('3')) return 'Amex'
         return 'Card'
     }
@@ -107,7 +112,7 @@ export function StepPayment({ details, onChange }: StepPaymentProps) {
                             <div className="absolute right-3 top-1/2 -translate-y-1/2 flex gap-1">
                                 {/* Simple visual indicators for card types */}
                                 <div className={cn("w-8 h-5 rounded bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500 transition-colors", details.cardNumber.startsWith('4') && "bg-blue-600 text-white")}>VISA</div>
-                                <div className={cn("w-8 h-5 rounded bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500 transition-colors", details.cardNumber.startsWith('5') && "bg-orange-500 text-white")}>MC</div>
+                                <div className={cn("w-8 h-5 rounded bg-slate-200 flex items-center justify-center text-[10px] font-bold text-slate-500 transition-colors", (details.cardNumber.startsWith('5') || details.cardNumber.startsWith('2')) && "bg-orange-500 text-white")}>MX</div>
                             </div>
                         </div>
                     </div>
@@ -186,7 +191,10 @@ export function StepPayment({ details, onChange }: StepPaymentProps) {
 
                     {/* Country */}
                     <div className="space-y-2">
-                        <label className="text-sm font-semibold text-slate-700">Billing Country</label>
+                        <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                            Billing Country
+                            <span className="text-red-500">*</span>
+                        </label>
                         <Select value={details.country} onValueChange={(value) => onChange({ ...details, country: value })}>
                             <SelectTrigger className="h-12 border-slate-300">
                                 <SelectValue placeholder="Select country" />
@@ -202,6 +210,91 @@ export function StepPayment({ details, onChange }: StepPaymentProps) {
                                 <SelectItem value="FR">🇫🇷 France</SelectItem>
                             </SelectContent>
                         </Select>
+                    </div>
+
+                    {/* Billing Address Section */}
+                    <div className="pt-4 border-t border-slate-200">
+                        <h4 className="text-lg font-bold text-slate-900 mb-4">Billing Address</h4>
+
+                        {/* Address Line 1 */}
+                        <div className="space-y-2 mb-4">
+                            <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                                Address Line 1
+                                <span className="text-red-500">*</span>
+                            </label>
+                            <Input
+                                type="text"
+                                placeholder="Street address, P.O. box, company name"
+                                value={details.addressLine1}
+                                onChange={(e) => onChange({ ...details, addressLine1: e.target.value })}
+                                className="h-12 border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                                required
+                            />
+                        </div>
+
+                        {/* Address Line 2 */}
+                        <div className="space-y-2 mb-4">
+                            <label className="text-sm font-semibold text-slate-700">
+                                Address Line 2 <span className="text-slate-400 text-xs">(Optional)</span>
+                            </label>
+                            <Input
+                                type="text"
+                                placeholder="Apartment, suite, unit, building, floor, etc."
+                                value={details.addressLine2}
+                                onChange={(e) => onChange({ ...details, addressLine2: e.target.value })}
+                                className="h-12 border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                            />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-4">
+                            {/* City */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                                    City
+                                    <span className="text-red-500">*</span>
+                                </label>
+                                <Input
+                                    type="text"
+                                    placeholder="City"
+                                    value={details.city}
+                                    onChange={(e) => onChange({ ...details, city: e.target.value })}
+                                    className="h-12 border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                                    required
+                                />
+                            </div>
+
+                            {/* State */}
+                            <div className="space-y-2">
+                                <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                                    State
+                                    <span className="text-red-500">*</span>
+                                </label>
+                                <Input
+                                    type="text"
+                                    placeholder="State / Province"
+                                    value={details.state}
+                                    onChange={(e) => onChange({ ...details, state: e.target.value })}
+                                    className="h-12 border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                                    required
+                                />
+                            </div>
+                        </div>
+
+                        {/* Zip Code */}
+                        <div className="space-y-2 mt-4">
+                            <label className="text-sm font-semibold text-slate-700 flex items-center gap-2">
+                                ZIP / Postal Code
+                                <span className="text-red-500">*</span>
+                            </label>
+                            <Input
+                                type="text"
+                                placeholder="ZIP / Postal Code"
+                                value={details.zipCode}
+                                onChange={(e) => onChange({ ...details, zipCode: e.target.value })}
+                                className="h-12 border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                                required
+                            />
+                        </div>
                     </div>
                 </div>
 

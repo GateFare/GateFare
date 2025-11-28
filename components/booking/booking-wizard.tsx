@@ -23,6 +23,10 @@ export function BookingWizard({ flight, passengerCount, onClose }: BookingWizard
     const [success, setSuccess] = useState(false)
     const [token, setToken] = useState("")
     const [bookingReference, setBookingReference] = useState("")
+    const [couponCode, setCouponCode] = useState("")
+    const [couponApplied, setCouponApplied] = useState(false)
+    const [couponError, setCouponError] = useState("")
+    const [discount, setDiscount] = useState(0)
 
     // Passengers State
     const [passengers, setPassengers] = useState<PassengerDetails[]>(
@@ -51,6 +55,11 @@ export function BookingWizard({ flight, passengerCount, onClose }: BookingWizard
         expiryYear: "",
         cvv: "",
         country: "",
+        addressLine1: "",
+        addressLine2: "",
+        city: "",
+        state: "",
+        zipCode: "",
     })
 
     const [seats, setSeats] = useState<SeatSelection>({
@@ -68,6 +77,54 @@ export function BookingWizard({ flight, passengerCount, onClose }: BookingWizard
         setPassengers(prev => prev.map((p, i) => i === index ? { ...p, ...data } : p))
     }
 
+    // Check if flight is domestic or international
+    const isFlightDomestic = () => {
+        const depCode = flight.departure.code.substring(0, 2)
+        const arrCode = flight.arrival.code.substring(0, 2)
+        const usCodes = ['NY', 'LA', 'SF', 'CH', 'MI', 'DA', 'HO', 'AT', 'BO', 'SE', 'DE', 'PH', 'LV', 'OR']
+        const isDomesticUS = usCodes.some(code => depCode.includes(code[0])) && usCodes.some(code => arrCode.includes(code[0]))
+        return isDomesticUS || depCode === arrCode
+    }
+
+    // Apply Coupon
+    const applyCoupon = () => {
+        setCouponError("")
+        const code = couponCode.trim().toUpperCase()
+
+        if (code === "") {
+            setCouponError("Please select a coupon")
+            return
+        }
+
+        if (code === "DOM10" && isFlightDomestic()) {
+            setDiscount(0.10)
+            setCouponApplied(true)
+        } else if (code === "INT20" && !isFlightDomestic()) {
+            setDiscount(0.20)
+            setCouponApplied(true)
+        } else if (code === "DOM10" && !isFlightDomestic()) {
+            setCouponError("This coupon is only valid for domestic flights")
+            setDiscount(0)
+            setCouponApplied(false)
+        } else if (code === "INT20" && isFlightDomestic()) {
+            setCouponError("This coupon is only valid for international flights")
+            setDiscount(0)
+            setCouponApplied(false)
+        } else {
+            setCouponError("Invalid coupon code")
+            setDiscount(0)
+            setCouponApplied(false)
+        }
+    }
+
+    // Remove Coupon
+    const removeCoupon = () => {
+        setCouponCode("")
+        setCouponApplied(false)
+        setDiscount(0)
+        setCouponError("")
+    }
+
     // Calculate Total Price
     const calculateTotal = () => {
         let total = flight.price * passengers.length
@@ -83,7 +140,13 @@ export function BookingWizard({ flight, passengerCount, onClose }: BookingWizard
         if (addons.cancellation === "any_reason") total += 65 * passengers.length
         if (addons.cancellation === "flexible") total += 37 * passengers.length
         if (addons.premiumService) total += 12 * passengers.length
-        return total
+
+        // Apply discount if coupon is applied
+        if (couponApplied && discount > 0) {
+            total = total * (1 - discount)
+        }
+
+        return Math.round(total)
     }
 
     const handleNext = () => {
@@ -456,6 +519,173 @@ export function BookingWizard({ flight, passengerCount, onClose }: BookingWizard
                                 <span>Base Fare x {passengers.length}</span>
                                 <span>${flight.price * passengers.length}</span>
                             </div>
+
+                            {/* Seat Selection */}
+                            {seats.price > 0 && (
+                                <div className="flex justify-between text-slate-600">
+                                    <span>Seat Selection</span>
+                                    <span>${seats.price}</span>
+                                </div>
+                            )}
+
+                            {/* Baggage */}
+                            {passengers.some(p => p.baggage === "add") && (
+                                <div className="flex justify-between text-slate-600">
+                                    <span>Extra Baggage x {passengers.filter(p => p.baggage === "add").length}</span>
+                                    <span>${passengers.filter(p => p.baggage === "add").length * 50}</span>
+                                </div>
+                            )}
+
+                            {/* Ticket Exchange */}
+                            {passengers.some(p => p.ticketExchange) && (
+                                <div className="flex justify-between text-slate-600">
+                                    <span>Ticket Exchange x {passengers.filter(p => p.ticketExchange).length}</span>
+                                    <span>${passengers.filter(p => p.ticketExchange).length * 54}</span>
+                                </div>
+                            )}
+
+                            {/* SMS Updates */}
+                            {passengers.some(p => p.smsUpdates) && (
+                                <div className="flex justify-between text-slate-600">
+                                    <span>SMS Updates x {passengers.filter(p => p.smsUpdates).length}</span>
+                                    <span>${passengers.filter(p => p.smsUpdates).length * 6}</span>
+                                </div>
+                            )}
+
+                            {/* Flexible Ticket */}
+                            {addons.flexibleTicket && (
+                                <div className="flex justify-between text-slate-600">
+                                    <span>Flexible Ticket x {passengers.length}</span>
+                                    <span>${45 * passengers.length}</span>
+                                </div>
+                            )}
+
+                            {/* Cancellation Insurance */}
+                            {addons.cancellation !== "none" && (
+                                <div className="flex justify-between text-slate-600">
+                                    <span>Cancellation ({addons.cancellation === "any_reason" ? "Any Reason" : "Flexible"}) x {passengers.length}</span>
+                                    <span>${(addons.cancellation === "any_reason" ? 65 : 37) * passengers.length}</span>
+                                </div>
+                            )}
+
+                            {/* Premium Service */}
+                            {addons.premiumService && (
+                                <div className="flex justify-between text-slate-600">
+                                    <span>Premium Service x {passengers.length}</span>
+                                    <span>${12 * passengers.length}</span>
+                                </div>
+                            )}
+
+                            {/* Visual Coupon Section */}
+                            <div className="border-t pt-3 mt-3">
+                                <label className="text-xs font-semibold text-slate-700 mb-3 block flex items-center gap-2">
+                                    <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+                                    </svg>
+                                    {couponApplied ? 'Applied Coupon' : 'Available Coupons'}
+                                </label>
+
+                                {!couponApplied ? (
+                                    <div className="space-y-2">
+                                        {/* DOM10 Coupon Card */}
+                                        <div className="relative overflow-hidden rounded-lg border-2 border-dashed border-green-300 bg-gradient-to-r from-green-50 to-emerald-50 p-3">
+                                            <div className="absolute -right-1 top-1/2 -translate-y-1/2">
+                                                <svg className="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M5.5 2a3.5 3.5 0 101.665 6.58L8.585 10l-1.42 1.42a3.5 3.5 0 101.414 1.414l8.128-8.127a1 1 0 00-1.414-1.414L7.165 11.42a3.5 3.5 0 10-1.665-6.58zm0 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" clipRule="evenodd" />
+                                                </svg>
+                                            </div>
+                                            <div className="pr-6">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className="font-mono font-bold text-green-700 text-base">DOM10</span>
+                                                    <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-semibold">10% OFF</span>
+                                                </div>
+                                                <p className="text-xs text-green-600 mb-2">For domestic flights</p>
+                                                {isFlightDomestic() ? (
+                                                    <button
+                                                        onClick={() => {
+                                                            setCouponCode("DOM10")
+                                                            setTimeout(applyCoupon, 0)
+                                                        }}
+                                                        className="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded font-semibold transition-colors"
+                                                    >
+                                                        Apply
+                                                    </button>
+                                                ) : (
+                                                    <span className="text-xs text-slate-400 italic">Not applicable</span>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {/* INT20 Coupon Card */}
+                                        <div className="relative overflow-hidden rounded-lg border-2 border-dashed border-blue-300 bg-gradient-to-r from-blue-50 to-indigo-50 p-3">
+                                            <div className="absolute -right-1 top-1/2 -translate-y-1/2">
+                                                <svg className="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M5.5 2a3.5 3.5 0 101.665 6.58L8.585 10l-1.42 1.42a3.5 3.5 0 101.414 1.414l8.128-8.127a1 1 0 00-1.414-1.414L7.165 11.42a3.5 3.5 0 10-1.665-6.58zm0 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" clipRule="evenodd" />
+                                                </svg>
+                                            </div>
+                                            <div className="pr-6">
+                                                <div className="flex items-center gap-2 mb-1">
+                                                    <span className="font-mono font-bold text-blue-700 text-base">INT20</span>
+                                                    <span className="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-semibold">20% OFF</span>
+                                                </div>
+                                                <p className="text-xs text-blue-600 mb-2">For international flights</p>
+                                                {!isFlightDomestic() ? (
+                                                    <button
+                                                        onClick={() => {
+                                                            setCouponCode("INT20")
+                                                            setTimeout(applyCoupon, 0)
+                                                        }}
+                                                        className="text-xs bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded font-semibold transition-colors"
+                                                    >
+                                                        Apply
+                                                    </button>
+                                                ) : (
+                                                    <span className="text-xs text-slate-400 italic">Not applicable</span>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className={`relative overflow-hidden rounded-lg border-2 border-dashed p-3 ${couponCode === 'DOM10'
+                                            ? 'border-green-400 bg-gradient-to-r from-green-50 to-emerald-50'
+                                            : 'border-blue-400 bg-gradient-to-r from-blue-50 to-indigo-50'
+                                        }`}>
+                                        <div className="absolute -right-1 top-1/2 -translate-y-1/2">
+                                            <svg className={`w-5 h-5 ${couponCode === 'DOM10' ? 'text-green-400' : 'text-blue-400'}`} fill="currentColor" viewBox="0 0 20 20">
+                                                <path fillRule="evenodd" d="M5.5 2a3.5 3.5 0 101.665 6.58L8.585 10l-1.42 1.42a3.5 3.5 0 101.414 1.414l8.128-8.127a1 1 0 00-1.414-1.414L7.165 11.42a3.5 3.5 0 10-1.665-6.58zm0 7a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" clipRule="evenodd" />
+                                            </svg>
+                                        </div>
+                                        <div className="pr-6">
+                                            <div className="flex items-center gap-2 mb-2">
+                                                <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                                </svg>
+                                                <span className={`font-mono font-bold text-base ${couponCode === 'DOM10' ? 'text-green-700' : 'text-blue-700'}`}>
+                                                    {couponCode}
+                                                </span>
+                                                <span className={`text-xs px-2 py-0.5 rounded-full font-semibold ${couponCode === 'DOM10' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'
+                                                    }`}>
+                                                    {discount * 100}% OFF Applied
+                                                </span>
+                                            </div>
+                                            <button
+                                                onClick={removeCoupon}
+                                                className="text-xs text-red-600 hover:text-red-800 font-semibold underline"
+                                            >
+                                                Remove Coupon
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+
+                            {couponApplied && discount > 0 && (
+                                <div className="flex justify-between text-green-600 font-medium">
+                                    <span>Discount ({discount * 100}%)</span>
+                                    <span>-${Math.round((flight.price * passengers.length) * discount)}</span>
+                                </div>
+                            )}
+
                             <div className="border-t pt-2 mt-2 flex justify-between font-bold text-lg text-slate-900">
                                 <span>Total</span>
                                 <span className="text-blue-600">${calculateTotal()}</span>
