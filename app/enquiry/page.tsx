@@ -75,18 +75,29 @@ export default function EnquiryPage() {
         },
         body: JSON.stringify({
           ...formData,
-          passengerCount: parseInt(formData.passengers),
+          passengerCount: formData.passengers === "More" ? 6 : parseInt(formData.passengers),
           token,
         }),
       })
 
+      const data = await response.json()
+
       if (!response.ok) {
-        throw new Error("Failed to submit enquiry")
+        // Show validation errors
+        if (data.details) {
+          const errorMessages = data.details.map((err: any) => err.message).join(", ")
+          setError(`Validation error: ${errorMessages}`)
+        } else {
+          setError(data.error || "Failed to submit enquiry")
+        }
+        setLoading(false)
+        return
       }
 
       setSubmitted(true)
       setFormData({ name: "", email: "", phone: "", from: "", to: "", date: "", passengers: "1", message: "" })
     } catch (err) {
+      console.error("Enquiry error:", err)
       setError("Something went wrong. Please try again.")
     } finally {
       setLoading(false)
