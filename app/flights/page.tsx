@@ -3,7 +3,6 @@
 import { useEffect, useState, Suspense, useMemo } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { FlightCard } from "@/components/flight-card"
-import { InquiryModal } from "@/components/inquiry-modal"
 import { Button } from "@/components/ui/button"
 import { Loader2, ArrowLeft, Filter } from "lucide-react"
 import type { Flight } from "@/lib/mock-data"
@@ -16,8 +15,6 @@ function FlightResultsContent() {
     const router = useRouter()
     const [flights, setFlights] = useState<Flight[]>([])
     const [loading, setLoading] = useState(true)
-    const [selectedFlight, setSelectedFlight] = useState<Flight | null>(null)
-    const [isModalOpen, setIsModalOpen] = useState(false)
 
     // Filter State
     const [filters, setFilters] = useState<FilterState>({
@@ -110,8 +107,11 @@ function FlightResultsContent() {
     }, [flights, filters])
 
     const handleBook = (flight: Flight) => {
-        setSelectedFlight(flight)
-        setIsModalOpen(true)
+        // Store flight data in session storage
+        sessionStorage.setItem('bookingFlight', JSON.stringify(flight))
+        sessionStorage.setItem('passengerCount', passengers.toString())
+        // Navigate to booking page
+        router.push('/book')
     }
 
     return (
@@ -208,13 +208,6 @@ function FlightResultsContent() {
                     </div>
                 </div>
             </div>
-
-            <InquiryModal
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
-                flight={selectedFlight}
-                passengerCount={passengers}
-            />
         </div>
     )
 }

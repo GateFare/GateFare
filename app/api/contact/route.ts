@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server"
 import { z } from "zod"
-import { Resend } from "resend"
+import nodemailer from "nodemailer"
 import rateLimit from "@/lib/rate-limit"
-
-const resend = new Resend(process.env.RESEND_API_KEY)
 
 const limiter = rateLimit({
     interval: 60 * 1000, // 60 seconds
@@ -19,7 +17,7 @@ const contactSchema = z.object({
 })
 
 async function verifyTurnstile(token: string) {
-    const secretKey = process.env.TURNSTILE_SECRET_KEY || '1x0000000000000000000000000000000AA';
+    const secretKey = process.env.TURNSTILE_SECRET_KEY || '0x4AAAAAACDad3mEyl315NFl_24abjc4NMI';
     const response = await fetch('https://challenges.cloudflare.com/turnstile/v0/siteverify', {
         method: 'POST',
         headers: {
@@ -39,7 +37,7 @@ export async function POST(req: Request) {
     try {
         // Rate Limiting
         try {
-            await limiter.check(NextResponse.next(), 5, "CACHE_TOKEN_CONTACT"); // 5 requests per minute
+            await limiter.check(5, "CACHE_TOKEN_CONTACT"); // 5 requests per minute
         } catch {
             return NextResponse.json({ error: "Rate limit exceeded" }, { status: 429 });
         }
@@ -53,32 +51,46 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Security check failed" }, { status: 400 });
         }
 
-        // If no API key, just log and return success (for dev/demo)
-        if (!process.env.RESEND_API_KEY) {
-            console.log("Contact Form Submission (Mock):", validatedData)
-            return NextResponse.json({ success: true, mock: true })
+        // Send email using Nodemailer
+        if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
+            const transporter = nodemailer.createTransport({
+                service: 'gmail',
+                auth: {
+                    user: process.env.GMAIL_USER,
+                    pass: process.env.GMAIL_APP_PASSWORD,
+                },
+            });
+
+            const adminEmail = process.env.ADMIN_EMAIL || "support@gatefare.com";
+
+            await transporter.sendMail({
+                from: `"Gatefare Contact" <${process.env.GMAIL_USER}>`,
+                to: adminEmail,
+                subject: `New Contact Message: ${validatedData.subject}`,
+                html: `
+                    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                        <h2 style="color: #1e40af; margin-bottom: 20px;">New Contact Message</h2>
+                        <div style="background-color: #f8fafc; padding: 15px; border-radius: 6px; margin-bottom: 20px;">
+                            <p style="margin: 5px 0;"><strong>Name:</strong> ${validatedData.name}</p>
+                            <p style="margin: 5px 0;"><strong>Email:</strong> ${validatedData.email}</p>
+                            <p style="margin: 5px 0;"><strong>Subject:</strong> ${validatedData.subject}</p>
+                        </div>
+                        <div style="margin-top: 20px;">
+                            <h3 style="color: #334155; font-size: 16px;">Message:</h3>
+                            <p style="white-space: pre-wrap; color: #475569; line-height: 1.6;">${validatedData.message}</p>
+                        </div>
+                    </div>
+                `,
+            });
+
+            return NextResponse.json({ success: true })
+        } else {
+            console.log("Gmail credentials not configured. Logging contact message to console:");
+            console.log("Contact Data:", validatedData);
+            // Return success even if email not configured in dev, but warn
+            return NextResponse.json({ success: true, warning: "Email not sent (credentials missing)" })
         }
 
-        const { data, error } = await resend.emails.send({
-            from: "Gatefare Contact <onboarding@resend.dev>",
-            to: [process.env.ADMIN_EMAIL || "delivered@resend.dev"],
-            subject: `New Contact Message: ${validatedData.subject}`,
-            html: `
-        <h1>New Contact Message</h1>
-        <p><strong>Name:</strong> ${validatedData.name}</p>
-        <p><strong>Email:</strong> ${validatedData.email}</p>
-        <p><strong>Subject:</strong> ${validatedData.subject}</p>
-        <p><strong>Message:</strong></p>
-        <p>${validatedData.message.replace(/\n/g, "<br>")}</p>
-      `,
-        })
-
-        if (error) {
-            console.error("Resend Error:", error)
-            return NextResponse.json({ error: "Failed to send email" }, { status: 500 })
-        }
-
-        return NextResponse.json({ success: true, data })
     } catch (error) {
         console.error("Contact API Error:", error)
         if (error instanceof z.ZodError) {

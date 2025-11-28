@@ -186,3 +186,24 @@ body {
   /* slate-400 */
   margin-left: 8px;
 }
+
+/* Wobble animation for call button */
+@keyframes wobble {
+
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(-5deg);
+  }
+
+  75% {
+    transform: rotate(5deg);
+  }
+}
+
+.animate-wobble {
+  animation: wobble 1s ease-in-out infinite;
+}

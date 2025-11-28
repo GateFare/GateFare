@@ -198,7 +198,7 @@ export default function EnquiryPage() {
 
                 <div className="flex justify-center">
                   <Turnstile
-                    sitekey="3x00000000000000000000FF"
+                    sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "0x4AAAAAACDad5fMdvn-A7YA"}
                     onVerify={(token) => setToken(token)}
                   />
                 </div>

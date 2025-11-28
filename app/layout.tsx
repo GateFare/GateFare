@@ -6,6 +6,7 @@ import LenisInitializer from "@/components/lenis-initializer"
 import "./globals.css"
 
 import { CrispChat } from "@/components/crisp-chat"
+import { CallButton } from "@/components/call-button"
 
 const inter = Inter({ subsets: ["latin"] })
 
@@ -42,6 +43,7 @@ export default function RootLayout({
       <body className={`${inter.className} font-sans antialiased`} suppressHydrationWarning>
         <LenisInitializer />
         <CrispChat />
+        <CallButton />
         {children}
         <Analytics />
       </body>
