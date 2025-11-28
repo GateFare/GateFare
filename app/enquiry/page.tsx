@@ -68,13 +68,16 @@ export default function EnquiryPage() {
     }
 
     try {
+      // Exclude 'passengers' string from formData as API expects it to be an array
+      const { passengers, ...submitData } = formData
+
       const response = await fetch("/api/enquiry", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          ...formData,
+          ...submitData,
           passengerCount: formData.passengers === "More" ? 6 : parseInt(formData.passengers),
           token,
         }),
