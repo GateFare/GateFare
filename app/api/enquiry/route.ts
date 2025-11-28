@@ -33,7 +33,7 @@ const enquirySchema = z.object({
 
     // Simple Enquiry Fields
     name: z.string().optional(),
-    email: z.string().email().optional(),
+    email: z.string().email().optional().or(z.literal("")),
     phone: z.string().optional(),
     message: z.string().optional(),
     from: z.string().optional(),
