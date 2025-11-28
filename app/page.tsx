@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, Suspense } from "react"
 import { Menu, Plane, Users, ArrowRight, CheckCircle2, Mail, Phone, ArrowLeftRight, MapPin, Search, Calendar } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -74,7 +74,9 @@ const flights = [
 
 
 
-export default function Home() {
+
+
+function HomeContent() {
   const router = useRouter()
   const [selectedFlight, setSelectedFlight] = useState<(typeof flights)[0] | null>(null)
   const [showInquiry, setShowInquiry] = useState(false)
@@ -329,5 +331,13 @@ export default function Home() {
       </Dialog>
       <PromoPopup />
     </div>
+  )
+}
+
+export default function Home() {
+  return (
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-blue-50 to-white"><div className="text-blue-600 text-lg">Loading...</div></div>}>
+      <HomeContent />
+    </Suspense>
   )
 }
