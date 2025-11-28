@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import amadeus from '@/lib/amadeus';
-import { mapAmadeusFlightToFlight } from '@/lib/amadeus-helpers';
+import { searchFlights } from '@/lib/mock-data';
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -16,30 +15,15 @@ export async function GET(request: Request) {
         );
     }
 
-    // Extract airport code from format "City (CODE)" if necessary
-    const originCode = from.includes('(') ? from.match(/\(([^)]+)\)/)?.[1] || from : from;
-    const destinationCode = to.includes('(') ? to.match(/\(([^)]+)\)/)?.[1] || to : to;
-
     try {
-        console.log("[Flight Search] Searching:", { originCode, destinationCode, date, passengers });
-        const response = await amadeus.shopping.flightOffersSearch.get({
-            originLocationCode: originCode,
-            destinationLocationCode: destinationCode,
-            departureDate: date,
-            adults: passengers,
-            max: 10
-        });
+        console.log("[Flight Search] Searching (MOCK):", { from, to, date, passengers });
 
-        const flights = response.data.map((offer: any) => mapAmadeusFlightToFlight(offer, response.result.dictionaries));
+        // Use mock data instead of Amadeus API to show specific airlines as requested
+        const flights = await searchFlights(from, to, date);
+
         return NextResponse.json({ flights });
     } catch (error) {
-        console.error("Amadeus Flight Search Error:", error);
-        const amadeusError = error as any;
-        console.error("Error details:", {
-            description: amadeusError.description,
-            code: amadeusError.code,
-            response: amadeusError.response
-        });
+        console.error("Flight Search Error:", error);
         return NextResponse.json(
             { error: "Failed to fetch flights", details: error instanceof Error ? error.message : String(error) },
             { status: 500 }

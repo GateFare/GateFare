@@ -60,22 +60,22 @@ export async function searchFlights(from: string, to: string, date: string): Pro
 
     // Generate some mock flights based on the route
     const airlines = [
-        { name: "Emirates", code: "EK" },
-        { name: "British Airways", code: "BA" },
-        { name: "Qatar Airways", code: "QR" },
-        { name: "Lufthansa", code: "LH" },
-        { name: "Air India", code: "AI" },
+        { name: "United Airlines", code: "UA" },
+        { name: "American Airlines", code: "AA" },
+        { name: "Delta Air Lines", code: "DL" },
+        { name: "Frontier Airlines", code: "F9" },
     ]
 
     const flights: Flight[] = Array.from({ length: 5 }).map((_, i) => {
         const airline = airlines[Math.floor(Math.random() * airlines.length)]
-        const priceBase = 500 + Math.random() * 1000
+        // More realistic pricing between $300 and $600
+        const priceBase = 300 + Math.random() * 300
 
         // Random times
-        const depHour = 8 + Math.floor(Math.random() * 12)
+        const depHour = 6 + Math.floor(Math.random() * 14) // 6 AM to 8 PM
         const depMin = Math.floor(Math.random() * 60)
-        const durationHours = 6 + Math.floor(Math.random() * 8)
-        const stops = Math.floor(Math.random() * 2) // 0 or 1 stop
+        const durationHours = 2 + Math.floor(Math.random() * 6) // Shorter domestic-style duration
+        const stops = Math.random() > 0.7 ? 1 : 0 // Mostly non-stop
 
         const depTime = `${depHour.toString().padStart(2, '0')}:${depMin.toString().padStart(2, '0')}`
         const arrHour = (depHour + durationHours) % 24
@@ -96,7 +96,7 @@ export async function searchFlights(from: string, to: string, date: string): Pro
                 code: to.substring(0, 3).toUpperCase(),
                 time: arrTime,
             },
-            duration: `${durationHours}h 00m`,
+            duration: `${durationHours}h ${Math.floor(Math.random() * 60).toString().padStart(2, '0')}m`,
             price: Math.floor(priceBase),
             currency: "USD",
             stops: stops,

@@ -1,14 +1,14 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { Suspense, useEffect, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { BookingWizard } from "@/components/booking/booking-wizard"
 import { Navbar } from "@/components/navbar"
 import type { Flight } from "@/lib/mock-data"
-import { ArrowLeft } from "lucide-react"
+import { ArrowLeft, Loader2 } from "lucide-react"
 import Link from "next/link"
 
-export default function BookPage() {
+function BookPageContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const [flight, setFlight] = useState<Flight | null>(null)
@@ -56,5 +56,17 @@ export default function BookPage() {
                 <BookingWizard flight={flight} passengerCount={passengerCount} onClose={handleClose} />
             </div>
         </div>
+    )
+}
+
+export default function BookPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center">
+                <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+            </div>
+        }>
+            <BookPageContent />
+        </Suspense>
     )
 }

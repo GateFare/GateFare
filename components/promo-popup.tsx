@@ -57,29 +57,29 @@ export function PromoPopup() {
 
                             <DialogHeader>
                                 <DialogTitle className="text-3xl font-bold text-slate-900 mb-2">
-                                    Upgrade Your Journey
+                                    Fly to Los Angeles 🌴
                                 </DialogTitle>
                                 <DialogDescription className="sr-only">
-                                    Unlock exclusive premium benefits for your next flight including lounge access, priority boarding, and extra baggage.
+                                    Exclusive offer for first-time customers flying to Los Angeles. Get huge discounts and premium perks.
                                 </DialogDescription>
                             </DialogHeader>
 
                             <p className="text-slate-600 mb-6 text-lg">
-                                Experience travel like never before. Unlock exclusive premium benefits for your next flight.
+                                First time with us? Grab this exclusive welcome offer for your trip to the City of Angels!
                             </p>
 
                             <ul className="space-y-3 mb-8">
                                 <li className="flex items-center gap-3 text-slate-700">
                                     <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm">✓</div>
-                                    <span>Access to Premium Airport Lounges</span>
+                                    <span><span className="font-bold text-blue-600">20% OFF</span> for First-Time Customers</span>
                                 </li>
                                 <li className="flex items-center gap-3 text-slate-700">
                                     <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm">✓</div>
-                                    <span>Priority Boarding & Check-in</span>
+                                    <span>Free Hotel Transfer in LA</span>
                                 </li>
                                 <li className="flex items-center gap-3 text-slate-700">
                                     <div className="w-6 h-6 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 text-sm">✓</div>
-                                    <span>Extra Baggage Allowance (23kg)</span>
+                                    <span>Complimentary City Guide</span>
                                 </li>
                             </ul>
 
@@ -87,11 +87,11 @@ export function PromoPopup() {
                                 className="bg-blue-600 hover:bg-blue-700 text-white w-full h-12 text-lg font-semibold shadow-lg shadow-blue-200"
                                 onClick={() => setIsOpen(false)}
                             >
-                                Claim Offer Now
+                                Grab Deal Now
                             </Button>
 
                             <p className="text-xs text-slate-400 mt-4 text-center">
-                                *Offer valid until Sunday. Terms and conditions apply.
+                                *Valid for new customers only. Limited availability.
                             </p>
                         </div>
                     </div>

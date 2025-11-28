@@ -4,6 +4,7 @@ import { useState } from "react"
 import { Menu, Plane, Users, ArrowRight, CheckCircle2, Mail, Phone, ArrowLeftRight, MapPin, Search, Calendar } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -23,7 +24,7 @@ import { PackagesCarousel } from "@/components/packages-carousel";
 const flights = [
   {
     id: 1,
-    airline: "Emirates",
+    airline: "United Airlines",
     from: "LHR",
     to: "DXB",
     departure: "14:30",
@@ -35,7 +36,7 @@ const flights = [
   },
   {
     id: 2,
-    airline: "British Airways",
+    airline: "American Airlines",
     from: "LHR",
     to: "DXB",
     departure: "10:00",
@@ -47,7 +48,7 @@ const flights = [
   },
   {
     id: 3,
-    airline: "Lufthansa",
+    airline: "Delta Air Lines",
     from: "LHR",
     to: "DXB",
     departure: "16:45",
@@ -57,11 +58,24 @@ const flights = [
     price: 380,
     rating: 4.5,
   },
+  {
+    id: 4,
+    airline: "Frontier Airlines",
+    from: "LHR",
+    to: "DXB",
+    departure: "08:15",
+    arrival: "16:30",
+    duration: "8h 15m",
+    stops: "Non-stop",
+    price: 350,
+    rating: 4.3,
+  },
 ]
 
 
 
 export default function Home() {
+  const router = useRouter()
   const [selectedFlight, setSelectedFlight] = useState<(typeof flights)[0] | null>(null)
   const [showInquiry, setShowInquiry] = useState(false)
   const [formData, setFormData] = useState({
@@ -72,8 +86,20 @@ export default function Home() {
   })
 
   const handleSelectFlight = (flight: (typeof flights)[0]) => {
-    setSelectedFlight(flight)
-    setShowInquiry(true)
+    // Calculate tomorrow's date for the search
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    const dateStr = tomorrow.toISOString().split('T')[0]
+
+    // Navigate to search results
+    const params = new URLSearchParams({
+      from: flight.from,
+      to: flight.to,
+      date: dateStr,
+      passengers: "1"
+    })
+
+    router.push(`/flights?${params.toString()}`)
   }
 
   const handleSubmit = () => {

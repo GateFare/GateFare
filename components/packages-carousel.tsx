@@ -80,7 +80,18 @@ export function PackagesCarousel() {
                                         {pkg.description}
                                     </p>
                                     <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                                        <Link href={`/enquiry?package=${pkg.city}`}>
+                                        <Link href={(function () {
+                                            const nextYear = new Date();
+                                            nextYear.setFullYear(nextYear.getFullYear() + 1);
+                                            const dateStr = nextYear.toISOString().split('T')[0];
+                                            const params = new URLSearchParams({
+                                                from: "LHR", // Default origin
+                                                to: pkg.city,
+                                                date: dateStr,
+                                                passengers: "1"
+                                            });
+                                            return `/flights?${params.toString()}`;
+                                        })()}>
                                             <Button className="bg-blue-600 hover:bg-blue-700 text-white h-14 px-8 text-lg rounded-full shadow-lg shadow-blue-900/20 transition-all hover:scale-105">
                                                 Book Now <ArrowRight className="w-5 h-5 ml-2" />
                                             </Button>
