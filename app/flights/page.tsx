@@ -371,10 +371,10 @@ function FlightResultsContent() {
                                 </Link>
                             </div>
                             <div className="rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">
-                                <Link href={`/flights?from=JFK&to=Paris&date=${new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0]}&passengers=1&maxPrice=150`}>
+                                <Link href={`/flights?from=JFK&to=Tokyo&date=${new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0]}&passengers=1&maxPrice=150`}>
                                     <Image
-                                        src="/ads/paris.png"
-                                        alt="Paris Getaway"
+                                        src="/ads/tokyo.png"
+                                        alt="Explore Tokyo"
                                         width={600}
                                         height={150}
                                         className="w-full h-auto object-cover"
