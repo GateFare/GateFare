@@ -241,9 +241,9 @@ export function BookingWizard({ flight, passengerCount, onClose }: BookingWizard
                         </div>
                     </div>
 
-                    <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-3">Request Received Successfully!</h2>
+                    <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-3">Booking done!</h2>
                     <p className="text-lg text-slate-600 mb-8 max-w-2xl">
-                        Thank you for choosing Gatefare. Your booking request has been submitted and is being processed by our team.
+                        Your eTicket will be issued shortly in mail.
                     </p>
 
                     <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border-2 border-blue-300 rounded-2xl p-6 mb-6 w-full shadow-md">
@@ -647,8 +647,8 @@ export function BookingWizard({ flight, passengerCount, onClose }: BookingWizard
                                     </div>
                                 ) : (
                                     <div className={`relative overflow-hidden rounded-lg border-2 border-dashed p-3 ${couponCode === 'DOM10'
-                                            ? 'border-green-400 bg-gradient-to-r from-green-50 to-emerald-50'
-                                            : 'border-blue-400 bg-gradient-to-r from-blue-50 to-indigo-50'
+                                        ? 'border-green-400 bg-gradient-to-r from-green-50 to-emerald-50'
+                                        : 'border-blue-400 bg-gradient-to-r from-blue-50 to-indigo-50'
                                         }`}>
                                         <div className="absolute -right-1 top-1/2 -translate-y-1/2">
                                             <svg className={`w-5 h-5 ${couponCode === 'DOM10' ? 'text-green-400' : 'text-blue-400'}`} fill="currentColor" viewBox="0 0 20 20">

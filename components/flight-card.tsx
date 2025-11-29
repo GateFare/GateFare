@@ -8,14 +8,55 @@ interface FlightCardProps {
     onBook: (flight: Flight) => void
 }
 
+// Helper to get airline logo URL
+const getAirlineLogo = (airlineName: string) => {
+    const domainMap: Record<string, string> = {
+        "United Airlines": "united.com",
+        "American Airlines": "aa.com",
+        "Delta Air Lines": "delta.com",
+        "Frontier Airlines": "flyfrontier.com",
+        "Alaska Airlines": "alaskaair.com",
+        "JetBlue Airways": "jetblue.com",
+        "Spirit Airlines": "spirit.com",
+        "Southwest Airlines": "southwest.com",
+        "British Airways": "britishairways.com",
+        "Lufthansa": "lufthansa.com",
+        "Air France": "airfrance.com",
+        "Emirates": "emirates.com",
+        "Qatar Airways": "qatarairways.com",
+        "Singapore Airlines": "singaporeair.com",
+    }
+
+    const domain = domainMap[airlineName]
+    if (domain) {
+        return `https://logo.clearbit.com/${domain}`
+    }
+    return null
+}
+
 export function FlightCard({ flight, onBook }: FlightCardProps) {
+    const logoUrl = getAirlineLogo(flight.airline)
+
     return (
         <div className="bg-white rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition-all p-6 mb-4">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                 {/* Airline Info */}
                 <div className="flex items-center gap-4 w-full md:w-1/4">
-                    <div className="w-12 h-12 bg-blue-50 rounded-full flex items-center justify-center text-blue-600 font-bold text-lg">
-                        {flight.airlineCode}
+                    <div className="w-12 h-12 flex-shrink-0 flex items-center justify-center bg-white rounded-full overflow-hidden border border-slate-100">
+                        {logoUrl ? (
+                            <img
+                                src={logoUrl}
+                                alt={flight.airline}
+                                className="w-full h-full object-contain p-1"
+                                onError={(e) => {
+                                    e.currentTarget.style.display = 'none'
+                                    e.currentTarget.nextElementSibling?.classList.remove('hidden')
+                                }}
+                            />
+                        ) : null}
+                        <div className={`w-full h-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-lg ${logoUrl ? 'hidden' : ''}`}>
+                            {flight.airlineCode}
+                        </div>
                     </div>
                     <div>
                         <h3 className="font-semibold text-slate-900">{flight.airline}</h3>

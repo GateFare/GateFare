@@ -4,11 +4,12 @@ import { useEffect, useState, Suspense, useMemo } from "react"
 import { useSearchParams, useRouter } from "next/navigation"
 import { FlightCard } from "@/components/flight-card"
 import { Button } from "@/components/ui/button"
-import { Loader2, ArrowLeft, Filter } from "lucide-react"
+import { Loader2, ArrowLeft, Filter, Search, Plane } from "lucide-react"
 import type { Flight } from "@/lib/mock-data"
 import { FlightFilters, type FilterState } from "@/components/flight-filters"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { FlightCardSkeleton } from "@/components/flight-card-skeleton"
+import { PromotionalBanner } from "@/components/promotional-banner"
 
 function FlightResultsContent() {
     const searchParams = useSearchParams()
@@ -155,29 +156,77 @@ function FlightResultsContent() {
         <div className="min-h-screen bg-slate-50 pb-20">
             {/* Header */}
             <div className="bg-white border-b border-blue-100 sticky top-0 z-10 shadow-sm">
-                <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between gap-4">
-                    <div className="flex items-center gap-4">
-                        <Button variant="ghost" size="icon" onClick={() => router.push('/')}>
-                            <ArrowLeft className="w-5 h-5" />
-                        </Button>
-                        <div>
-                            <h1 className="text-lg font-bold text-slate-900">
-                                {from} to {to}
-                            </h1>
-                            <p className="text-sm text-slate-500">{date} • {passengers} Passenger{passengers > 1 ? 's' : ''}</p>
+                <div className="max-w-7xl mx-auto px-4 py-4">
+                    <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+                        <div className="flex items-center gap-4 w-full md:w-auto">
+                            <Button variant="ghost" size="icon" onClick={() => router.push('/')} className="shrink-0">
+                                <ArrowLeft className="w-5 h-5" />
+                            </Button>
+
+                            {/* Search Summary Bar */}
+                            <div className="flex-1 flex items-center gap-3 bg-slate-50 border border-blue-100 rounded-lg px-4 py-2 text-sm">
+                                <div className="flex items-center gap-2 text-slate-700 font-medium">
+                                    <div className="flex items-center gap-1">
+                                        <Plane className="w-4 h-4 text-blue-500" />
+                                        <span>{from}</span>
+                                    </div>
+                                    <span className="text-slate-400">→</span>
+                                    <div className="flex items-center gap-1">
+                                        <Plane className="w-4 h-4 text-blue-500 transform rotate-45" />
+                                        <span>{to}</span>
+                                    </div>
+                                </div>
+                                <div className="w-px h-4 bg-slate-200 mx-1 hidden sm:block"></div>
+                                <div className="hidden sm:flex items-center gap-4 text-slate-600">
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="w-4 h-4 flex items-center justify-center">📅</span>
+                                        <span>{date}</span>
+                                    </div>
+                                    <div className="flex items-center gap-1.5">
+                                        <span className="w-4 h-4 flex items-center justify-center">👤</span>
+                                        <span>{passengers} Traveler{passengers > 1 ? 's' : ''}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3 w-full md:w-auto">
+                            <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm flex-1 md:flex-none">
+                                <Search className="w-4 h-4 mr-2" />
+                                Modify Search
+                            </Button>
+
+                            {/* Mobile Filter Trigger */}
+                            <Sheet>
+                                <SheetTrigger asChild>
+                                    <Button variant="outline" className="lg:hidden gap-2 flex-1 md:flex-none">
+                                        <Filter className="w-4 h-4" /> Filters
+                                    </Button>
+                                </SheetTrigger>
+                                <SheetContent side="left" className="w-[300px] sm:w-[400px] overflow-y-auto">
+                                    <div className="py-6">
+                                        <h2 className="text-lg font-bold mb-6">Filter Flights</h2>
+                                        <FlightFilters
+                                            minPrice={minPrice}
+                                            maxPrice={maxPrice}
+                                            airlines={uniqueAirlines}
+                                            filters={filters}
+                                            setFilters={setFilters}
+                                        />
+                                    </div>
+                                </SheetContent>
+                            </Sheet>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    {/* Mobile Filter Trigger */}
-                    <Sheet>
-                        <SheetTrigger asChild>
-                            <Button variant="outline" size="sm" className="lg:hidden gap-2">
-                                <Filter className="w-4 h-4" /> Filters
-                            </Button>
-                        </SheetTrigger>
-                        <SheetContent side="left" className="w-[300px] sm:w-[400px] overflow-y-auto">
-                            <div className="py-6">
-                                <h2 className="text-lg font-bold mb-6">Filter Flights</h2>
+            <div className="max-w-7xl mx-auto px-4 py-8">
+                <div className="flex flex-col lg:flex-row gap-8">
+                    {/* Desktop Sidebar */}
+                    <aside className="hidden lg:block w-64 shrink-0">
+                        <div className="sticky top-24 space-y-6">
+                            <div className="bg-white rounded-xl p-6 shadow-sm border border-blue-100">
                                 <FlightFilters
                                     minPrice={minPrice}
                                     maxPrice={maxPrice}
@@ -186,22 +235,23 @@ function FlightResultsContent() {
                                     setFilters={setFilters}
                                 />
                             </div>
-                        </SheetContent>
-                    </Sheet>
-                </div>
-            </div>
 
-            <div className="max-w-7xl mx-auto px-4 py-8">
-                <div className="flex flex-col lg:flex-row gap-8">
-                    {/* Desktop Sidebar */}
-                    <aside className="hidden lg:block w-64 shrink-0">
-                        <div className="bg-white rounded-xl p-6 shadow-sm border border-blue-100 sticky top-24">
-                            <FlightFilters
-                                minPrice={minPrice}
-                                maxPrice={maxPrice}
-                                airlines={uniqueAirlines}
-                                filters={filters}
-                                setFilters={setFilters}
+                            {/* Sidebar Banners */}
+                            <PromotionalBanner
+                                variant="sidebar"
+                                title="Need Help?"
+                                description="Our travel experts are available 24/7 to assist you."
+                                icon="phone"
+                                actionLabel="Call Now"
+                                color="blue"
+                            />
+                            <PromotionalBanner
+                                variant="sidebar"
+                                title="Best Price Guarantee"
+                                description="Find a lower price? We'll match it and give you $50."
+                                icon="shield"
+                                actionLabel="Learn More"
+                                color="emerald"
                             />
                         </div>
                     </aside>
@@ -221,8 +271,32 @@ function FlightResultsContent() {
                                         Found <span className="font-bold text-slate-900">{filteredFlights.length}</span> flights
                                     </p>
                                 </div>
-                                {filteredFlights.map((flight) => (
-                                    <FlightCard key={flight.id} flight={flight} onBook={handleBook} />
+
+                                {/* Top Banner */}
+                                <PromotionalBanner
+                                    variant="inline"
+                                    title="Get 5% Cash Back"
+                                    description="Use your Gatefare Signature Card and earn 5% back on all flight bookings."
+                                    icon="card"
+                                    actionLabel="Apply Now"
+                                    color="indigo"
+                                />
+
+                                {filteredFlights.map((flight, index) => (
+                                    <div key={flight.id}>
+                                        <FlightCard flight={flight} onBook={handleBook} />
+                                        {/* Insert Banner after 2nd item */}
+                                        {index === 1 && (
+                                            <PromotionalBanner
+                                                variant="inline"
+                                                title="Travel with Peace of Mind"
+                                                description="Add comprehensive travel insurance starting at just $15."
+                                                icon="shield"
+                                                actionLabel="Add Insurance"
+                                                color="amber"
+                                            />
+                                        )}
+                                    </div>
                                 ))}
                             </div>
                         ) : (
