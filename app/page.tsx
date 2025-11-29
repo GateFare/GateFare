@@ -152,55 +152,69 @@ function HomeContent() {
           {[
             {
               name: "Bangkok",
+              code: "BKK",
               image: "https://images.unsplash.com/photo-1508009603885-50cf7c579365?q=80&w=800&auto=format&fit=crop",
               className: "md:col-span-2"
             },
             {
               name: "Seoul",
+              code: "ICN",
               image: "https://images.unsplash.com/photo-1538485399081-7191377e8241?q=80&w=800&auto=format&fit=crop",
               className: "md:col-span-1"
             },
             {
               name: "Tokyo",
+              code: "HND",
               image: "https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=800&auto=format&fit=crop",
               className: "md:col-span-1"
             },
             {
               name: "New York",
+              code: "JFK",
+              origin: "LAX",
               image: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?q=80&w=800&auto=format&fit=crop",
               className: "md:col-span-2"
             },
             {
               name: "Rome",
+              code: "FCO",
               image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?q=80&w=800&auto=format&fit=crop",
               className: "md:col-span-2"
             },
             {
               name: "Israel",
+              code: "TLV",
               image: "https://images.unsplash.com/photo-1544971587-b842c27f8e14?q=80&w=800&auto=format&fit=crop",
               className: "md:col-span-1"
             },
-          ].map((dest, idx) => (
-            <div
-              key={dest.name}
-              className={`group relative overflow-hidden rounded-3xl cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500 ${dest.className}`}
-            >
-              <Image
-                src={dest.image}
-                alt={dest.name}
-                fill
-                className="object-cover group-hover:scale-110 transition-transform duration-700"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
-              <div className="absolute bottom-0 left-0 right-0 p-8 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                <h3 className="text-3xl font-bold mb-2">{dest.name}</h3>
-                <div className="flex items-center gap-2 text-blue-300 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
-                  <span className="text-sm font-medium uppercase tracking-wider">Explore</span>
-                  <ArrowRight className="w-4 h-4" />
+          ].map((dest, idx) => {
+            const tomorrow = new Date()
+            tomorrow.setDate(tomorrow.getDate() + 1)
+            const dateStr = tomorrow.toISOString().split('T')[0]
+
+            return (
+              <Link
+                key={dest.name}
+                href={`/flights?from=${dest.origin || 'JFK'}&to=${dest.code}&date=${dateStr}&passengers=1`}
+                className={`group relative overflow-hidden rounded-3xl cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-500 ${dest.className}`}
+              >
+                <Image
+                  src={dest.image}
+                  alt={dest.name}
+                  fill
+                  className="object-cover group-hover:scale-110 transition-transform duration-700"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/80 via-slate-900/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
+                <div className="absolute bottom-0 left-0 right-0 p-8 text-white transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                  <h3 className="text-3xl font-bold mb-2">{dest.name}</h3>
+                  <div className="flex items-center gap-2 text-blue-300 opacity-0 group-hover:opacity-100 transition-opacity duration-500 delay-100">
+                    <span className="text-sm font-medium uppercase tracking-wider">Explore</span>
+                    <ArrowRight className="w-4 h-4" />
+                  </div>
                 </div>
-              </div>
-            </div>
-          ))}
+              </Link>
+            )
+          })}
         </div>
       </section>
 
