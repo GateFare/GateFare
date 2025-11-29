@@ -158,7 +158,7 @@ function FlightResultsContent() {
     return (
         <div className="min-h-screen bg-slate-50 pb-20">
             {/* Header */}
-            <div className="bg-white border-b border-blue-100 sticky top-0 z-10 shadow-sm">
+            <div className="bg-white border-b border-blue-100 sticky top-0 z-50 shadow-sm">
                 <div className="max-w-7xl mx-auto px-4 py-4">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                         <div className="flex items-center gap-4 w-full md:w-auto">
