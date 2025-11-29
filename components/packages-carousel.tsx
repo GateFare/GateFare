@@ -15,7 +15,7 @@ const packages = [
         city: "Dubai",
         country: "UAE",
         image: "https://images.unsplash.com/photo-1518684079-3c830dcef090?q=80&w=1920&auto=format&fit=crop", // Updated Dubai Image
-        price: "$899",
+        price: "$149",
         description: "Experience luxury in the desert. Visit the Burj Khalifa and Palm Jumeirah."
     },
     {
@@ -23,7 +23,7 @@ const packages = [
         city: "Jerusalem",
         country: "Israel",
         image: "https://images.unsplash.com/photo-1552832230-c0197dd311b5?q=80&w=1920&auto=format&fit=crop",
-        price: "$1,299",
+        price: "$139",
         description: "Explore ancient history and vibrant culture in the heart of the Middle East."
     },
     {
@@ -31,7 +31,7 @@ const packages = [
         city: "New York",
         country: "USA",
         image: "https://images.unsplash.com/photo-1496442226666-8d4d0e62e6e9?q=80&w=1920&auto=format&fit=crop",
-        price: "$1,099",
+        price: "$129",
         description: "The city that never sleeps. Times Square, Central Park, and Broadway await."
     },
     {
@@ -39,7 +39,7 @@ const packages = [
         city: "Paris",
         country: "France",
         image: "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1920&auto=format&fit=crop",
-        price: "$999",
+        price: "$119",
         description: "Romance, art, and cuisine. See the Eiffel Tower and Louvre Museum."
     }
 ]
@@ -85,10 +85,11 @@ export function PackagesCarousel() {
                                             nextYear.setFullYear(nextYear.getFullYear() + 1);
                                             const dateStr = nextYear.toISOString().split('T')[0];
                                             const params = new URLSearchParams({
-                                                from: "LHR", // Default origin
+                                                from: "JFK", // Default origin
                                                 to: pkg.city,
                                                 date: dateStr,
-                                                passengers: "1"
+                                                passengers: "1",
+                                                maxPrice: "150"
                                             });
                                             return `/flights?${params.toString()}`;
                                         })()}>

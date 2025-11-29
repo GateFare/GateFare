@@ -42,12 +42,12 @@ export function FlightCard({ flight, onBook }: FlightCardProps) {
             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                 {/* Airline Info */}
                 <div className="flex items-center gap-4 w-full md:w-1/4">
-                    <div className="w-12 h-12 flex-shrink-0 flex items-center justify-center bg-white rounded-full overflow-hidden border border-slate-100">
+                    <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center bg-white rounded-full overflow-hidden border border-slate-100">
                         {logoUrl ? (
                             <img
                                 src={logoUrl}
                                 alt={flight.airline}
-                                className="w-full h-full object-contain p-1"
+                                className="w-full h-full object-contain p-2"
                                 onError={(e) => {
                                     e.currentTarget.style.display = 'none'
                                     e.currentTarget.nextElementSibling?.classList.remove('hidden')
@@ -59,7 +59,7 @@ export function FlightCard({ flight, onBook }: FlightCardProps) {
                         </div>
                     </div>
                     <div>
-                        <h3 className="font-semibold text-slate-900">{flight.airline}</h3>
+                        <h3 className="font-semibold text-slate-900 text-xl">{flight.airline}</h3>
                         <p className="text-xs text-slate-500">{flight.flightNumber}</p>
                     </div>
                 </div>

@@ -16,6 +16,8 @@ export function GoogleTranslate() {
         setMounted(true)
 
         window.googleTranslateElementInit = () => {
+            const target = document.getElementById("google_translate_element")
+            if (target) target.innerHTML = ""
             new window.google.translate.TranslateElement(
                 {
                     pageLanguage: "en",

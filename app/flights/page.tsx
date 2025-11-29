@@ -10,6 +10,9 @@ import { FlightFilters, type FilterState } from "@/components/flight-filters"
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
 import { FlightCardSkeleton } from "@/components/flight-card-skeleton"
 import { PromotionalBanner } from "@/components/promotional-banner"
+import { ModifySearchSheet } from "@/components/modify-search-sheet"
+import Image from "next/image"
+import Link from "next/link"
 
 function FlightResultsContent() {
     const searchParams = useSearchParams()
@@ -191,10 +194,7 @@ function FlightResultsContent() {
                         </div>
 
                         <div className="flex items-center gap-3 w-full md:w-auto">
-                            <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm flex-1 md:flex-none">
-                                <Search className="w-4 h-4 mr-2" />
-                                Modify Search
-                            </Button>
+                            <ModifySearchSheet />
 
                             {/* Mobile Filter Trigger */}
                             <Sheet>
@@ -223,7 +223,7 @@ function FlightResultsContent() {
 
             <div className="max-w-7xl mx-auto px-4 py-8">
                 <div className="flex flex-col lg:flex-row gap-8">
-                    {/* Desktop Sidebar */}
+                    {/* Left Sidebar (Filters) */}
                     <aside className="hidden lg:block w-64 shrink-0">
                         <div className="sticky top-24 space-y-6">
                             <div className="bg-white rounded-xl p-6 shadow-sm border border-blue-100">
@@ -245,18 +245,10 @@ function FlightResultsContent() {
                                 actionLabel="Call Now"
                                 color="blue"
                             />
-                            <PromotionalBanner
-                                variant="sidebar"
-                                title="Best Price Guarantee"
-                                description="Find a lower price? We'll match it and give you $50."
-                                icon="shield"
-                                actionLabel="Learn More"
-                                color="emerald"
-                            />
                         </div>
                     </aside>
 
-                    {/* Results List */}
+                    {/* Center Results List */}
                     <div className="flex-1">
                         {loading ? (
                             <div className="space-y-4">
@@ -296,6 +288,48 @@ function FlightResultsContent() {
                                                 color="amber"
                                             />
                                         )}
+
+                                        {/* Mobile Ad Banner - Tokyo */}
+                                        {index === 2 && (
+                                            <div className="lg:hidden mt-4 rounded-xl overflow-hidden shadow-sm relative h-24 sm:h-32">
+                                                <Link href={`/flights?from=JFK&to=Tokyo&date=${new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0]}&passengers=1&maxPrice=150`}>
+                                                    <Image
+                                                        src="/ads/tokyo.png"
+                                                        alt="Explore Tokyo"
+                                                        fill
+                                                        className="object-cover"
+                                                    />
+                                                </Link>
+                                            </div>
+                                        )}
+
+                                        {/* Mobile Ad Banner - Dubai */}
+                                        {index === 4 && (
+                                            <div className="lg:hidden mt-4 rounded-xl overflow-hidden shadow-sm relative h-24 sm:h-32">
+                                                <Link href={`/flights?from=JFK&to=Dubai&date=${new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0]}&passengers=1&maxPrice=150`}>
+                                                    <Image
+                                                        src="/ads/dubai.png"
+                                                        alt="Visit Dubai"
+                                                        fill
+                                                        className="object-cover"
+                                                    />
+                                                </Link>
+                                            </div>
+                                        )}
+
+                                        {/* Mobile Ad Banner - Paris */}
+                                        {index === 6 && (
+                                            <div className="lg:hidden mt-4 rounded-xl overflow-hidden shadow-sm relative h-24 sm:h-32">
+                                                <Link href={`/flights?from=JFK&to=Paris&date=${new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0]}&passengers=1&maxPrice=150`}>
+                                                    <Image
+                                                        src="/ads/paris.png"
+                                                        alt="Paris Getaway"
+                                                        fill
+                                                        className="object-cover"
+                                                    />
+                                                </Link>
+                                            </div>
+                                        )}
                                     </div>
                                 ))}
                             </div>
@@ -321,6 +355,34 @@ function FlightResultsContent() {
                             </div>
                         )}
                     </div>
+
+                    {/* Right Sidebar (Ads) - Desktop Only */}
+                    <aside className="hidden xl:block w-72 shrink-0">
+                        <div className="sticky top-24 space-y-6">
+                            <div className="rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                                <Link href={`/flights?from=JFK&to=Dubai&date=${new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0]}&passengers=1&maxPrice=150`}>
+                                    <Image
+                                        src="/ads/dubai.png"
+                                        alt="Visit Dubai"
+                                        width={600}
+                                        height={150}
+                                        className="w-full h-auto object-cover"
+                                    />
+                                </Link>
+                            </div>
+                            <div className="rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow">
+                                <Link href={`/flights?from=JFK&to=Paris&date=${new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0]}&passengers=1&maxPrice=150`}>
+                                    <Image
+                                        src="/ads/paris.png"
+                                        alt="Paris Getaway"
+                                        width={600}
+                                        height={150}
+                                        className="w-full h-auto object-cover"
+                                    />
+                                </Link>
+                            </div>
+                        </div>
+                    </aside>
                 </div>
             </div>
         </div>

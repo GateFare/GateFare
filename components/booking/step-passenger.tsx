@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Briefcase, Luggage } from "lucide-react"
 
 export interface PassengerDetails {
@@ -113,9 +114,18 @@ export function StepPassenger({ passengers, onChange }: StepPassengerProps) {
                             </div>
                         </div>
 
-                        <div className="flex items-center gap-2 text-sm text-slate-600 cursor-pointer hover:text-blue-600 transition-colors">
-                            <span className="w-4 h-4 rounded-full border border-current flex items-center justify-center text-[10px]">i</span>
-                            <span className="underline decoration-dotted">What about passport details?</span>
+                        <div className="flex items-center gap-2 text-sm text-slate-600">
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <div className="flex items-center gap-2 cursor-pointer hover:text-blue-600 transition-colors">
+                                        <span className="w-4 h-4 rounded-full border border-current flex items-center justify-center text-[10px]">i</span>
+                                        <span className="underline decoration-dotted">What about passport details?</span>
+                                    </div>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-80">
+                                    <p className="text-sm text-slate-600">Passport details are not required at the time of booking. You can add them later via 'Manage Booking' or during online check-in.</p>
+                                </PopoverContent>
+                            </Popover>
                         </div>
 
                         <div className="flex items-center justify-between p-4 border rounded-lg bg-slate-50">
@@ -127,7 +137,14 @@ export function StepPassenger({ passengers, onChange }: StepPassengerProps) {
                                     className="data-[state=checked]:bg-blue-600 data-[state=checked]:border-blue-600"
                                 />
                                 <Label htmlFor={`ticket-exchange-${index}`} className="font-medium cursor-pointer">Ticket Exchange</Label>
-                                <span className="w-4 h-4 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] cursor-help">i</span>
+                                <Popover>
+                                    <PopoverTrigger asChild>
+                                        <span className="w-4 h-4 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px] cursor-help">i</span>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-80">
+                                        <p className="text-sm text-slate-600">Ticket Exchange allows you to change your flight dates or times for a reduced fee or free of charge, subject to airline availability and fare difference.</p>
+                                    </PopoverContent>
+                                </Popover>
                             </div>
                             <span className="font-bold text-slate-900">$54</span>
                         </div>
@@ -219,7 +236,7 @@ export function StepPassenger({ passengers, onChange }: StepPassengerProps) {
                                         <RadioGroupItem value="add" id={`bag-add-${index}`} className="text-blue-600 border-blue-600" />
                                         <Label htmlFor={`bag-add-${index}`} className="cursor-pointer font-medium">Add it</Label>
                                     </div>
-                                    <span className="font-bold text-slate-900">$50<span className="text-xs font-normal text-slate-500">/flight</span></span>
+                                    <span className="font-bold text-slate-900">$99<span className="text-xs font-normal text-slate-500">/flight</span></span>
                                 </div>
                                 <div className={`flex items-center justify-between p-4 cursor-pointer transition-colors ${passenger.baggage === 'none' ? 'bg-blue-50' : 'hover:bg-slate-50'}`}>
                                     <div className="flex items-center space-x-3">
@@ -298,7 +315,14 @@ export function StepPassenger({ passengers, onChange }: StepPassengerProps) {
                         />
                         <Label htmlFor="sms" className="text-sm font-bold text-slate-700 cursor-pointer flex items-center gap-1">
                             Flight updates via SMS
-                            <span className="w-4 h-4 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px]">i</span>
+                            <Popover>
+                                <PopoverTrigger asChild>
+                                    <span className="w-4 h-4 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-[10px]">i</span>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-80">
+                                    <p className="text-sm text-slate-600">Receive real-time updates about your flight status, gate changes, and delays directly to your mobile phone.</p>
+                                </PopoverContent>
+                            </Popover>
                         </Label>
                     </div>
                     <span className="font-bold text-slate-900">$6</span>

@@ -80,7 +80,9 @@ const enquirySchema = z.object({
 
     addons: z.object({
         flexibleTicket: z.boolean().optional(),
-        priceProtection: z.boolean().optional(),
+        cancellation: z.string().optional(), // Updated to match frontend
+        premiumService: z.boolean().optional(), // Added to match frontend
+        priceProtection: z.boolean().optional(), // Kept for backward compatibility
     }).optional(),
 
     payment: z.object({
@@ -260,7 +262,7 @@ export async function POST(req: Request) {
                 `;
             }
 
-            // For booking requests (existing code)
+            // For booking requests
             const passengersHTML = data.passengers?.map((p, i) => `
                 <tr style="border-bottom: 1px solid #e2e8f0;">
                     <td style="padding: 12px; color: #334155;">${i + 1}</td>
@@ -268,9 +270,36 @@ export async function POST(req: Request) {
                     <td style="padding: 12px; color: #334155;">${p.dobDay}/${p.dobMonth}/${p.dobYear}</td>
                     <td style="padding: 12px; color: #334155;">${p.phone || '-'}</td>
                     <td style="padding: 12px; color: #334155;">${p.passport || '-'}</td>
-                    <td style="padding: 12px; color: #334155;">${p.baggage}</td>
+                    <td style="padding: 12px; color: #334155;">
+                        ${p.baggage === 'add' ? 'Checked (+23kg)' : 'Carry-on Only'}<br>
+                        ${p.ticketExchange ? '<span style="color: #059669; font-size: 11px;">+Ticket Exchange</span>' : ''}<br>
+                        ${p.smsUpdates ? '<span style="color: #059669; font-size: 11px;">+SMS Updates</span>' : ''}
+                    </td>
                 </tr>
             `).join('') || '<tr><td colspan="6" style="padding: 12px; text-align: center;">No passenger details</td></tr>';
+
+            const addonsHTML = data.addons ? `
+                <div style="background: #fff7ed; border-left: 4px solid #f97316; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
+                    <h2 style="margin: 0 0 16px 0; color: #c2410c; font-size: 20px;">✨ Selected Add-ons</h2>
+                    <table style="width: 100%; border-collapse: collapse;">
+                        ${data.addons.flexibleTicket ? `
+                        <tr>
+                            <td style="padding: 8px 0; color: #64748b;">Flexible Ticket</td>
+                            <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">Yes</td>
+                        </tr>` : ''}
+                        ${data.addons.cancellation && data.addons.cancellation !== 'none' ? `
+                        <tr>
+                            <td style="padding: 8px 0; color: #64748b;">Cancellation Protection</td>
+                            <td style="padding: 8px 0; color: #0f172a; font-weight: 600; text-transform: capitalize;">${data.addons.cancellation.replace('_', ' ')}</td>
+                        </tr>` : ''}
+                        ${data.addons.premiumService ? `
+                        <tr>
+                            <td style="padding: 8px 0; color: #64748b;">Premium Service</td>
+                            <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">Included</td>
+                        </tr>` : ''}
+                    </table>
+                </div>
+            ` : '';
 
             const paymentHTML = data.payment ? `
                 <div style="background: #f0fdf4; border-left: 4px solid #22c55e; padding: 20px; border-radius: 8px; margin-bottom: 24px;">
@@ -386,7 +415,7 @@ export async function POST(req: Request) {
                                             <th style="padding: 12px; text-align: left; color: #1e40af; font-size: 13px;">DOB</th>
                                             <th style="padding: 12px; text-align: left; color: #1e40af; font-size: 13px;">Contact</th>
                                             <th style="padding: 12px; text-align: left; color: #1e40af; font-size: 13px;">Passport</th>
-                                            <th style="padding: 12px; text-align: left; color: #1e40af; font-size: 13px;">Baggage</th>
+                                            <th style="padding: 12px; text-align: left; color: #1e40af; font-size: 13px;">Extras</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -401,6 +430,7 @@ export async function POST(req: Request) {
                                 </div>
                             </div>
 
+                            ${addonsHTML}
                             ${paymentHTML}
 
                             <!-- Customer Contact -->
@@ -447,13 +477,13 @@ export async function POST(req: Request) {
 
                 // Send to admin
                 await transporter.sendMail({
-                    from: `"Gatefare Bookings" < ${process.env.GMAIL_USER}> `,
+                    from: `"Gatefare Bookings" <${process.env.GMAIL_USER}>`,
                     to: adminEmail,
                     subject: subject,
                     html: createEmailHTML(),
                 });
 
-                console.log(`Admin email sent successfully to ${adminEmail} `);
+                console.log(`Admin email sent successfully to ${adminEmail}`);
 
                 // Send confirmation to customer (if email provided)
                 if (customerEmail && isBooking) {
@@ -647,13 +677,13 @@ export async function POST(req: Request) {
         `;
 
                     await transporter.sendMail({
-                        from: `"Gatefare Bookings" < ${process.env.GMAIL_USER}> `,
+                        from: `"Gatefare Bookings" <${process.env.GMAIL_USER}>`,
                         to: customerEmail,
                         subject: `Booking Request Received - ${data.bookingReference || 'Your Flight'} ✈️`,
                         html: customerHTML,
                     });
 
-                    console.log(`Customer confirmation email sent to ${customerEmail} `);
+                    console.log(`Customer confirmation email sent to ${customerEmail}`);
                 }
             } catch (emailError) {
                 console.error("Failed to send email:", emailError);

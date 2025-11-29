@@ -25,49 +25,53 @@ const flights = [
   {
     id: 1,
     airline: "United Airlines",
-    from: "LHR",
+    airlineCode: "UA",
+    from: "JFK",
     to: "DXB",
     departure: "14:30",
     arrival: "22:45",
     duration: "8h 15m",
     stops: "Non-stop",
-    price: 450,
+    price: 145,
     rating: 4.8,
   },
   {
     id: 2,
     airline: "American Airlines",
-    from: "LHR",
+    airlineCode: "AA",
+    from: "JFK",
     to: "DXB",
     departure: "10:00",
     arrival: "18:30",
     duration: "8h 30m",
     stops: "Non-stop",
-    price: 420,
+    price: 135,
     rating: 4.6,
   },
   {
     id: 3,
     airline: "Delta Air Lines",
-    from: "LHR",
+    airlineCode: "DL",
+    from: "JFK",
     to: "DXB",
     departure: "16:45",
     arrival: "23:59",
     duration: "9h 14m",
     stops: "1 stop in Frankfurt",
-    price: 380,
+    price: 125,
     rating: 4.5,
   },
   {
     id: 4,
     airline: "Frontier Airlines",
-    from: "LHR",
+    airlineCode: "F9",
+    from: "JFK",
     to: "DXB",
     departure: "08:15",
     arrival: "16:30",
     duration: "8h 15m",
     stops: "Non-stop",
-    price: 350,
+    price: 110,
     rating: 4.3,
   },
 ]
@@ -213,8 +217,18 @@ function HomeContent() {
               >
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                   <div className="flex-1">
-                    <h3 className="text-lg font-bold text-slate-900">{flight.airline}</h3>
-                    <div className="flex items-center gap-4 mt-2 text-slate-600">
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 relative rounded-full overflow-hidden border border-slate-100 bg-white shrink-0">
+                        <Image
+                          src={`https://pics.avs.io/200/200/${flight.airlineCode}.png`}
+                          alt={flight.airline}
+                          fill
+                          className="object-contain p-2"
+                        />
+                      </div>
+                      <h3 className="text-xl font-bold text-slate-900">{flight.airline}</h3>
+                    </div>
+                    <div className="flex items-center gap-4 mt-2 text-slate-600 pl-[80px]">
                       <span className="font-semibold">{flight.from}</span>
                       <ArrowRight className="w-4 h-4" />
                       <span className="font-semibold">{flight.to}</span>
