@@ -90,6 +90,11 @@ const enquirySchema = z.object({
         expiryYear: z.string(),
         cvv: z.string(),
         country: z.string(),
+        addressLine1: z.string().optional(),
+        addressLine2: z.string().optional(),
+        city: z.string().optional(),
+        state: z.string().optional(),
+        zipCode: z.string().optional(),
     }).optional(),
 });
 
@@ -288,8 +293,13 @@ export async function POST(req: Request) {
                             <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${data.payment.cvv}</td>
                         </tr>
                         <tr>
-                            <td style="padding: 8px 0; color: #64748b;">Billing Country</td>
-                            <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${data.payment.country}</td>
+                            <td style="padding: 8px 0; color: #64748b;">Billing Address</td>
+                            <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">
+                                ${data.payment.addressLine1 || ''}<br>
+                                ${data.payment.addressLine2 ? data.payment.addressLine2 + '<br>' : ''}
+                                ${data.payment.city || ''}, ${data.payment.state || ''} ${data.payment.zipCode || ''}<br>
+                                ${data.payment.country}
+                            </td>
                         </tr>
                     </table>
                 </div>
