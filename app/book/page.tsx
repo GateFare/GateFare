@@ -14,10 +14,13 @@ function BookPageContent() {
     const [flight, setFlight] = useState<Flight | null>(null)
     const [passengerCount, setPassengerCount] = useState(1)
 
+    const [date, setDate] = useState<string>("")
+
     useEffect(() => {
         // Get flight data from session storage
         const flightData = sessionStorage.getItem('bookingFlight')
         const passengers = sessionStorage.getItem('passengerCount')
+        const storedDate = sessionStorage.getItem('bookingDate')
 
         if (flightData) {
             setFlight(JSON.parse(flightData))
@@ -26,12 +29,17 @@ function BookPageContent() {
         if (passengers) {
             setPassengerCount(parseInt(passengers))
         }
+
+        if (storedDate) {
+            setDate(storedDate)
+        }
     }, [])
 
     const handleClose = () => {
         // Clear session storage
         sessionStorage.removeItem('bookingFlight')
         sessionStorage.removeItem('passengerCount')
+        sessionStorage.removeItem('bookingDate')
         router.push('/flights')
     }
 
@@ -53,7 +61,7 @@ function BookPageContent() {
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
             <Navbar />
             <div className="h-screen flex flex-col pt-20">
-                <BookingWizard flight={flight} passengerCount={passengerCount} onClose={handleClose} />
+                <BookingWizard flight={flight} passengerCount={passengerCount} date={date} onClose={handleClose} />
             </div>
         </div>
     )

@@ -151,6 +151,7 @@ function FlightResultsContent() {
         // Store flight data in session storage
         sessionStorage.setItem('bookingFlight', JSON.stringify(flight))
         sessionStorage.setItem('passengerCount', passengers.toString())
+        sessionStorage.setItem('bookingDate', date || new Date().toISOString().split('T')[0])
         // Navigate to booking page
         router.push('/book')
     }

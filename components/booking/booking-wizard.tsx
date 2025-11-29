@@ -13,10 +13,11 @@ import type { Flight } from "@/lib/mock-data"
 interface BookingWizardProps {
     flight: Flight
     passengerCount: number
+    date?: string
     onClose: () => void
 }
 
-export function BookingWizard({ flight, passengerCount, onClose }: BookingWizardProps) {
+export function BookingWizard({ flight, passengerCount, date, onClose }: BookingWizardProps) {
     const [step, setStep] = useState(1)
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
@@ -202,7 +203,7 @@ export function BookingWizard({ flight, passengerCount, onClose }: BookingWizard
                         to: flight.arrival.city,
                         toCode: flight.arrival.code,
                         arrivalTime: flight.arrival.time,
-                        date: new Date().toISOString().split('T')[0],
+                        date: date || new Date().toISOString().split('T')[0],
                         duration: flight.duration,
                         basePrice: flight.price,
                         totalPrice: calculateTotal()
