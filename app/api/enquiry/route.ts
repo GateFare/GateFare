@@ -140,7 +140,7 @@ export async function POST(req: Request) {
         }
         const isBooking = data.type === 'booking';
 
-        const adminEmail = process.env.ADMIN_EMAIL || 'animelover200p@gmail.com';
+        const adminEmail = process.env.ADMIN_EMAIL || 'support@gatefare.com';
         const subject = isBooking
             ? `New Booking Request - ${data.bookingReference || 'Pending'}`
             : `New Enquiry from ${data.name || 'Customer'}`;
