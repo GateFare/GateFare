@@ -7,9 +7,5 @@ const nextConfig = {
     unoptimized: true,
   },
 }
-module.exports = {
-  images: {
-    domains: ["logo.clearbit.com"],
-  },
-};
+
 export default nextConfig
