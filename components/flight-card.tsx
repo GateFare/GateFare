@@ -1,4 +1,3 @@
-
 import { Plane, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { Flight } from "@/lib/mock-data"
@@ -7,59 +6,26 @@ interface FlightCardProps {
     flight: Flight
     onBook: (flight: Flight) => void
 }
+
 // Helper to get airline logo URL
 const getAirlineLogo = (airlineName: string) => {
     const domainMap: Record<string, string> = {
         "United Airlines": "united.com",
         "American Airlines": "aa.com",
         "Delta Air Lines": "delta.com",
-        "Southwest Airlines": "southwest.com",
+        "Frontier Airlines": "flyfrontier.com",
         "Alaska Airlines": "alaskaair.com",
-        "JetBlue": "jetblue.com",
-        "Air Canada": "aircanada.com",
-        "WestJet": "westjet.com",
-        "Frontier Ailines": "Frontier.com",
-	    "Spirit Airlines": "spirit.com",
+        "JetBlue Airways": "jetblue.com",
+        "Spirit Airlines": "spirit.com",
+        "Southwest Airlines": "southwest.com",
         "British Airways": "britishairways.com",
-        "Virgin Atlantic": "virginatlantic.com",
         "Lufthansa": "lufthansa.com",
-        "Eurowings": "eurowings.com",
         "Air France": "airfrance.com",
-        "KLM": "klm.com",
-        "Swiss International Air Lines": "swiss.com",
-        "Austrian Airlines": "austrian.com",
-        "Iberia": "iberia.com",
-        "Turkish Airlines": "turkishairlines.com",
-        "Ryanair": "ryanair.com",
-        "easyJet": "easyjet.com",
-        "Finnair": "finnair.com",
-        "SAS Scandinavian Airlines": "flysas.com",
-	    "Emirates": "emirates.com",
-        "Etihad Airways": "etihad.com",
+        "Emirates": "emirates.com",
         "Qatar Airways": "qatarairways.com",
-        "Saudia": "saudia.com",
-        "Oman Air": "omanair.com",
-	    "Singapore Airlines": "singaporeair.com",
-        "Cathay Pacific": "cathaypacific.com",
-        "ANA All Nippon Airways": "ana.co.jp",
-        "Japan Airlines": "jal.co.jp",
-        "Korean Air": "koreanair.com",
-        "Asiana Airlines": "flyasiana.com",
-        "China Airlines": "china-airlines.com",
-        "EVA Air": "evaair.com",
-        "Air China": "airchina.com",
-        "China Eastern Airlines": "ceair.com",
-        "China Southern Airlines": "csair.com",
-        "Hainan Airlines": "hnair.com",
-        "Qantas": "qantas.com",
-        "Virgin Australia": "virginaustralia.com",
-        "Air New Zealand": "airnewzealand.com",
-        "LATAM": "latam.com",
-        "Avianca": "avianca.com",
-        "Azul": "voeazul.com.br",
-        "Gol Linhas Aéreas": "voegol.com.br",
-        "Copa Airlines": "copaair.com"
-}
+        "Singapore Airlines": "singaporeair.com",
+    }
+
     const domain = domainMap[airlineName]
     if (domain) {
         return `https://logo.clearbit.com/${domain}`
