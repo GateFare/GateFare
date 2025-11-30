@@ -8,7 +8,6 @@ interface FlightCardProps {
     onBook: (flight: Flight) => void
 }
 
-// Helper to get airline logo URL
 const getAirlineLogo = (airlineName: string) => {
     const domainMap: Record<string, string> = {
         "United Airlines": "united.com",
@@ -63,17 +62,13 @@ const getAirlineLogo = (airlineName: string) => {
         "Avianca": "avianca.com",
         "Azul": "voeazul.com.br",
         "Gol Linhas Aéreas": "voegol.com.br",
-        "Copa Airlines": "copaair.com"
-        "Frontier": "Frontier.com"
-        "Spirit": "spirit.com",
-    }
+        "Copa Airlines": "copaair.com",
+    };
 
-    const domain = domainMap[airlineName]
-    if (domain) {
-        return `https://logo.clearbit.com/${domain}`
-    }
-    return null
-}
+    const domain = domainMap[airlineName];
+    return domain ? `https://logo.clearbit.com/${domain}` : null;
+};
+
 
 export function FlightCard({ flight, onBook }: FlightCardProps) {
     const logoUrl = getAirlineLogo(flight.airline)
