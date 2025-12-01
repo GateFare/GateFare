@@ -100,7 +100,8 @@ export async function searchFlights(from: string, to: string, date: string): Pro
             price: Math.floor(priceBase),
             currency: "USD",
             stops: stops,
-            seatsAvailable: Math.floor(Math.random() * 9) + 1 // 1-9 seats
+            seatsAvailable: Math.floor(Math.random() * 9) + 1, // 1-9 seats
+            rawOffer: { isMock: true, id: `MOCK-OFFER-${Math.random().toString(36).substr(2, 9)}` }
         }
     })
 

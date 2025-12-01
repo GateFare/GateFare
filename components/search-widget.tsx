@@ -74,6 +74,19 @@ function SearchWidgetContent() {
     }
 
     const handleSearch = () => {
+        if (searchData.tripType === "Return" && !searchData.returnDate) {
+            // You might want to show an error state here, but for now we'll just return
+            // or maybe default to one-way? Better to enforce date selection.
+            // Let's just alert for now or set a visual error if possible.
+            // Since we don't have a toast/error state ready, let's just not search.
+            // Or better, switch to One-way if they really want to search without date?
+            // No, that's confusing.
+            // Let's assume the user must pick a date.
+            const input = document.querySelector('input[type="date"]:nth-of-type(2)') as HTMLInputElement;
+            if (input) input.focus();
+            return;
+        }
+
         const params = new URLSearchParams({
             from: searchData.from,
             to: searchData.to,

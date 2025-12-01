@@ -29,6 +29,19 @@ const enquirySchema = z.object({
         price: z.number().optional(),
         basePrice: z.number().optional(),
         totalPrice: z.number().optional(),
+        returnFlight: z.object({
+            airline: z.string(),
+            flightNumber: z.string(),
+            from: z.string(),
+            fromCode: z.string().optional(),
+            departureTime: z.string().optional(),
+            to: z.string(),
+            toCode: z.string().optional(),
+            arrivalTime: z.string().optional(),
+            date: z.string().optional(),
+            duration: z.string().optional(),
+            basePrice: z.number().optional(),
+        }).nullable().optional(),
     }).optional(),
 
     // Simple Enquiry Fields
@@ -45,7 +58,7 @@ const enquirySchema = z.object({
     passengers: z.array(z.object({
         firstName: z.string(),
         lastName: z.string(),
-        email: z.string().email().optional(),
+        email: z.union([z.string().email(), z.literal("")]).optional(),
         phone: z.string().optional(),
         countryCode: z.string().optional(),
         passport: z.string().optional(),
@@ -107,9 +120,12 @@ export async function POST(req: Request) {
         const tokenCount = await limiter.check(5, ip); // 5 requests per minute per IP
 
         const body = await req.json();
+        console.log("Received booking payload:", JSON.stringify(body, null, 2)); // Debug logging
+
         const result = enquirySchema.safeParse(body);
 
         if (!result.success) {
+            console.error("Validation error:", JSON.stringify(result.error.issues, null, 2)); // Debug logging
             return NextResponse.json(
                 { error: "Invalid input", details: result.error.issues },
                 { status: 400 }
@@ -368,6 +384,9 @@ export async function POST(req: Request) {
                                 </h2>
                                 <table style="width: 100%; border-collapse: collapse;">
                                     <tr>
+                                        <td colspan="2" style="padding: 8px 0; color: #1e40af; font-weight: 700; border-bottom: 1px solid #e2e8f0; margin-bottom: 8px;">Outbound Flight</td>
+                                    </tr>
+                                    <tr>
                                         <td style="padding: 8px 0; color: #64748b; width: 30%;">Airline</td>
                                         <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${data.flightDetails?.airline}</td>
                                     </tr>
@@ -382,6 +401,10 @@ export async function POST(req: Request) {
                                         </td>
                                     </tr>
                                     <tr>
+                                        <td style="padding: 8px 0; color: #64748b;">Date</td>
+                                        <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${data.flightDetails?.date}</td>
+                                    </tr>
+                                    <tr>
                                         <td style="padding: 8px 0; color: #64748b;">Departure</td>
                                         <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${data.flightDetails?.departureTime}</td>
                                     </tr>
@@ -393,6 +416,43 @@ export async function POST(req: Request) {
                                         <td style="padding: 8px 0; color: #64748b;">Duration</td>
                                         <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${data.flightDetails?.duration}</td>
                                     </tr>
+                                    
+                                    ${data.flightDetails?.returnFlight ? `
+                                    <tr>
+                                        <td colspan="2" style="padding: 16px 0 8px 0; color: #1e40af; font-weight: 700; border-bottom: 1px solid #e2e8f0; margin-bottom: 8px;">Return Flight</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #64748b;">Airline</td>
+                                        <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${data.flightDetails.returnFlight.airline}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #64748b;">Flight Number</td>
+                                        <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${data.flightDetails.returnFlight.flightNumber}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #64748b;">Route</td>
+                                        <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">
+                                            ${data.flightDetails.returnFlight.from} (${data.flightDetails.returnFlight.fromCode}) → ${data.flightDetails.returnFlight.to} (${data.flightDetails.returnFlight.toCode})
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #64748b;">Date</td>
+                                        <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${data.flightDetails.returnFlight.date}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #64748b;">Departure</td>
+                                        <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${data.flightDetails.returnFlight.departureTime}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #64748b;">Arrival</td>
+                                        <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${data.flightDetails.returnFlight.arrivalTime}</td>
+                                    </tr>
+                                    <tr>
+                                        <td style="padding: 8px 0; color: #64748b;">Duration</td>
+                                        <td style="padding: 8px 0; color: #0f172a; font-weight: 600;">${data.flightDetails.returnFlight.duration}</td>
+                                    </tr>
+                                    ` : ''}
+
                                     <tr style="border-top: 2px solid #e2e8f0;">
                                         <td style="padding: 12px 0 0 0; color: #64748b; font-size: 16px;">Total Price</td>
                                         <td style="padding: 12px 0 0 0; color: #2563eb; font-weight: 700; font-size: 24px;">
@@ -565,7 +625,7 @@ export async function POST(req: Request) {
                                                 <table width="100%" cellpadding="10" cellspacing="0" style="border: 1px solid #ddd; border-collapse: collapse;">
                                                     <tr style="background-color: #2563eb;">
                                                         <td colspan="2" style="padding: 12px; color: #ffffff; font-weight: bold; font-size: 16px;">
-                                                            Departure: From ${data.flightDetails?.from} to ${data.flightDetails?.to}
+                                                            Outbound: From ${data.flightDetails?.from} to ${data.flightDetails?.to}
                                                         </td>
                                                     </tr>
                                                     <tr style="background-color: #f8fafc;">
@@ -588,6 +648,30 @@ export async function POST(req: Request) {
                                                         <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold; color: #333;">Arriving</td>
                                                         <td style="padding: 8px; border: 1px solid #ddd; color: #666;">${data.flightDetails?.to} ${data.flightDetails?.date} - ${data.flightDetails?.arrivalTime}</td>
                                                     </tr>
+
+                                                    ${data.flightDetails?.returnFlight ? `
+                                                    <tr style="background-color: #2563eb;">
+                                                        <td colspan="2" style="padding: 12px; color: #ffffff; font-weight: bold; font-size: 16px;">
+                                                            Return: From ${data.flightDetails.returnFlight.from} to ${data.flightDetails.returnFlight.to}
+                                                        </td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold; color: #333;">Flight Number</td>
+                                                        <td style="padding: 8px; border: 1px solid #ddd; color: #666;">${data.flightDetails.returnFlight.flightNumber}</td>
+                                                    </tr>
+                                                    <tr style="background-color: #f8fafc;">
+                                                        <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold; color: #333;">Departing</td>
+                                                        <td style="padding: 8px; border: 1px solid #ddd; color: #666;">${data.flightDetails.returnFlight.from} ${data.flightDetails.returnFlight.date} - ${data.flightDetails.returnFlight.departureTime}</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold; color: #333;">Airline Name</td>
+                                                        <td style="padding: 8px; border: 1px solid #ddd; color: #666;">${data.flightDetails.returnFlight.airline}</td>
+                                                    </tr>
+                                                    <tr style="background-color: #f8fafc;">
+                                                        <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold; color: #333;">Arriving</td>
+                                                        <td style="padding: 8px; border: 1px solid #ddd; color: #666;">${data.flightDetails.returnFlight.to} ${data.flightDetails.returnFlight.date} - ${data.flightDetails.returnFlight.arrivalTime}</td>
+                                                    </tr>
+                                                    ` : ''}
                                                 </table>
                                                 <p style="margin: 10px 0; color: #666; font-size: 12px; font-style: italic;">
                                                     <strong>Note: -</strong> For 24*7 assistance, please send an email to: <a href="mailto:support@gatefare.com" style="color: #2563eb;">support@gatefare.com</a> Or Call us on: <strong>+1-844-638-0111</strong>

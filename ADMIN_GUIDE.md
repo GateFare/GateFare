@@ -135,4 +135,18 @@ Once you have saved all your changes, follow these steps to make them live.
     *   If it asks "Inspect?", you can just wait or press Enter.
     *   Wait for it to finish. It will show a "Production" URL when done.
 
+### Troubleshooting Deployment
+If you see an error saying **"The specified token is not valid"**, do the following:
+
+1.  Run this command in the terminal:
+    ```bash
+    npx vercel login
+    ```
+2.  Select "Continue with GitHub" (or your login method).
+3.  It will open your browser to authenticate.
+4.  Once logged in, try the deploy command again:
+    ```bash
+    npx -y vercel --prod
+    ```
+
 **Done!** Your changes are now live on the website.

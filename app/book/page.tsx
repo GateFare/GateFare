@@ -12,18 +12,26 @@ function BookPageContent() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const [flight, setFlight] = useState<Flight | null>(null)
+    const [returnFlight, setReturnFlight] = useState<Flight | null>(null)
     const [passengerCount, setPassengerCount] = useState(1)
 
     const [date, setDate] = useState<string>("")
+    const [returnDate, setReturnDate] = useState<string>("")
 
     useEffect(() => {
         // Get flight data from session storage
         const flightData = sessionStorage.getItem('bookingFlight')
+        const returnFlightData = sessionStorage.getItem('returnFlight')
         const passengers = sessionStorage.getItem('passengerCount')
         const storedDate = sessionStorage.getItem('bookingDate')
+        const storedReturnDate = sessionStorage.getItem('returnDate')
 
         if (flightData) {
             setFlight(JSON.parse(flightData))
+        }
+
+        if (returnFlightData) {
+            setReturnFlight(JSON.parse(returnFlightData))
         }
 
         if (passengers) {
@@ -33,13 +41,19 @@ function BookPageContent() {
         if (storedDate) {
             setDate(storedDate)
         }
+
+        if (storedReturnDate) {
+            setReturnDate(storedReturnDate)
+        }
     }, [])
 
     const handleClose = () => {
         // Clear session storage
         sessionStorage.removeItem('bookingFlight')
+        sessionStorage.removeItem('returnFlight')
         sessionStorage.removeItem('passengerCount')
         sessionStorage.removeItem('bookingDate')
+        sessionStorage.removeItem('returnDate')
         router.push('/flights')
     }
 
@@ -61,7 +75,15 @@ function BookPageContent() {
         <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-50">
             <Navbar />
             <div className="h-screen flex flex-col pt-20">
-                <BookingWizard flight={flight} passengerCount={passengerCount} date={date} onClose={handleClose} />
+                <BookingWizard
+                    key={passengerCount}
+                    flight={flight}
+                    returnFlight={returnFlight}
+                    passengerCount={passengerCount}
+                    date={date}
+                    returnDate={returnDate}
+                    onClose={handleClose}
+                />
             </div>
         </div>
     )

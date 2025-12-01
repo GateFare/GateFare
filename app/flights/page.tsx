@@ -19,6 +19,7 @@ function FlightResultsContent() {
     const router = useRouter()
     const [flights, setFlights] = useState<Flight[]>([])
     const [loading, setLoading] = useState(true)
+    const [outboundFlight, setOutboundFlight] = useState<Flight | null>(null)
 
     // Filter State
     const [filters, setFilters] = useState<FilterState>({
@@ -35,16 +36,26 @@ function FlightResultsContent() {
     const from = searchParams.get("from")
     const to = searchParams.get("to")
     const date = searchParams.get("date")
+    const returnDate = searchParams.get("returnDate")
+    const tripType = searchParams.get("tripType")
     const passengers = parseInt(searchParams.get("passengers") || "1")
+
+    const isReturnTrip = (tripType?.toLowerCase() === "return" || !!returnDate) && !!returnDate
+    const isSelectingReturn = isReturnTrip && !!outboundFlight
 
     useEffect(() => {
         const fetchFlights = async () => {
             setLoading(true)
             try {
+                // If selecting return flight, swap origin and destination
+                const searchFrom = isSelectingReturn ? to : from
+                const searchTo = isSelectingReturn ? from : to
+                const searchDate = isSelectingReturn ? returnDate : date
+
                 const query = new URLSearchParams({
-                    from: from || "",
-                    to: to || "",
-                    date: date || "",
+                    from: searchFrom || "",
+                    to: searchTo || "",
+                    date: searchDate || "",
                     passengers: passengers.toString(),
                 }).toString()
 
@@ -72,7 +83,7 @@ function FlightResultsContent() {
         } else {
             setLoading(false)
         }
-    }, [from, to, date, passengers])
+    }, [from, to, date, returnDate, passengers, isSelectingReturn])
 
     // Derived Data for Filters
     const { minPrice, maxPrice, uniqueAirlines } = useMemo(() => {
@@ -148,12 +159,23 @@ function FlightResultsContent() {
     }, [flights, filters])
 
     const handleBook = (flight: Flight) => {
-        // Store flight data in session storage
-        sessionStorage.setItem('bookingFlight', JSON.stringify(flight))
-        sessionStorage.setItem('passengerCount', passengers.toString())
-        sessionStorage.setItem('bookingDate', date || new Date().toISOString().split('T')[0])
-        // Navigate to booking page
-        router.push('/book')
+        if (isReturnTrip && !outboundFlight) {
+            // Selected outbound flight, now select return
+            setOutboundFlight(flight)
+            window.scrollTo({ top: 0, behavior: 'smooth' })
+        } else {
+            // Selected return flight (or one-way), proceed to booking
+            sessionStorage.setItem('bookingFlight', JSON.stringify(outboundFlight || flight))
+            if (outboundFlight) {
+                sessionStorage.setItem('returnFlight', JSON.stringify(flight))
+            } else {
+                sessionStorage.removeItem('returnFlight')
+            }
+            sessionStorage.setItem('passengerCount', passengers.toString())
+            sessionStorage.setItem('bookingDate', date || new Date().toISOString().split('T')[0])
+            sessionStorage.setItem('returnDate', returnDate || "")
+            router.push('/book')
+        }
     }
 
     return (
@@ -163,7 +185,13 @@ function FlightResultsContent() {
                 <div className="max-w-7xl mx-auto px-4 py-4">
                     <div className="flex flex-col md:flex-row items-center justify-between gap-4">
                         <div className="flex items-center gap-4 w-full md:w-auto">
-                            <Button variant="ghost" size="icon" onClick={() => router.push('/')} className="shrink-0">
+                            <Button variant="ghost" size="icon" onClick={() => {
+                                if (outboundFlight) {
+                                    setOutboundFlight(null)
+                                } else {
+                                    router.push('/')
+                                }
+                            }} className="shrink-0">
                                 <ArrowLeft className="w-5 h-5" />
                             </Button>
 
@@ -172,19 +200,19 @@ function FlightResultsContent() {
                                 <div className="flex items-center gap-2 text-slate-700 font-medium">
                                     <div className="flex items-center gap-1">
                                         <Plane className="w-4 h-4 text-blue-500" />
-                                        <span>{from}</span>
+                                        <span>{isSelectingReturn ? to : from}</span>
                                     </div>
                                     <span className="text-slate-400">→</span>
                                     <div className="flex items-center gap-1">
                                         <Plane className="w-4 h-4 text-blue-500 transform rotate-45" />
-                                        <span>{to}</span>
+                                        <span>{isSelectingReturn ? from : to}</span>
                                     </div>
                                 </div>
                                 <div className="w-px h-4 bg-slate-200 mx-1 hidden sm:block"></div>
                                 <div className="hidden sm:flex items-center gap-4 text-slate-600">
                                     <div className="flex items-center gap-1.5">
                                         <span className="w-4 h-4 flex items-center justify-center">📅</span>
-                                        <span>{date}</span>
+                                        <span>{isSelectingReturn ? returnDate : date}</span>
                                     </div>
                                     <div className="flex items-center gap-1.5">
                                         <span className="w-4 h-4 flex items-center justify-center">👤</span>
@@ -220,6 +248,23 @@ function FlightResultsContent() {
                         </div>
                     </div>
                 </div>
+
+                {/* Step Indicator for Return Trips */}
+                {isReturnTrip && (
+                    <div className="bg-blue-50 border-t border-blue-100 py-2">
+                        <div className="max-w-7xl mx-auto px-4 flex items-center justify-center gap-4 text-sm">
+                            <div className={`flex items-center gap-2 ${!outboundFlight ? 'text-blue-700 font-bold' : 'text-slate-500'}`}>
+                                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${!outboundFlight ? 'bg-blue-600 text-white' : 'bg-slate-200'}`}>1</div>
+                                Select Outbound
+                            </div>
+                            <div className="w-8 h-px bg-slate-300"></div>
+                            <div className={`flex items-center gap-2 ${outboundFlight ? 'text-blue-700 font-bold' : 'text-slate-500'}`}>
+                                <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs ${outboundFlight ? 'bg-blue-600 text-white' : 'bg-slate-200'}`}>2</div>
+                                Select Return
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div className="max-w-7xl mx-auto px-4 py-8">
@@ -261,7 +306,7 @@ function FlightResultsContent() {
                             <div className="space-y-4">
                                 <div className="flex justify-between items-center mb-4">
                                     <p className="text-slate-600">
-                                        Found <span className="font-bold text-slate-900">{filteredFlights.length}</span> flights
+                                        Found <span className="font-bold text-slate-900">{filteredFlights.length}</span> {isSelectingReturn ? 'return' : 'outbound'} flights
                                     </p>
                                 </div>
 

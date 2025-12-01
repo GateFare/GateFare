@@ -18,10 +18,11 @@ interface StepSeatsProps {
     selection: SeatSelection
     onChange: (selection: SeatSelection) => void
     flight?: Flight
+    returnFlight?: Flight | null
     passengerName?: string
 }
 
-export function StepSeats({ selection, onChange, flight, passengerName = "Passenger" }: StepSeatsProps) {
+export function StepSeats({ selection, onChange, flight, returnFlight, passengerName = "Passenger" }: StepSeatsProps) {
     const [activeSegment, setActiveSegment] = useState<string | null>(null)
     const [seatMaps, setSeatMaps] = useState<any[]>([])
     const [loading, setLoading] = useState(false)
@@ -29,7 +30,7 @@ export function StepSeats({ selection, onChange, flight, passengerName = "Passen
 
     const segments = useMemo(() => {
         if (!flight) return []
-        return [{
+        const segs = [{
             id: flight.id,
             from: flight.departure.city,
             to: flight.arrival.city,
@@ -37,17 +38,29 @@ export function StepSeats({ selection, onChange, flight, passengerName = "Passen
             duration: flight.duration,
             type: "Outbound"
         }]
-    }, [flight])
 
-    const fetchSeatMap = async () => {
-        if (!flight) return
+        if (returnFlight) {
+            segs.push({
+                id: returnFlight.id,
+                from: returnFlight.departure.city,
+                to: returnFlight.arrival.city,
+                airline: returnFlight.airline,
+                duration: returnFlight.duration,
+                type: "Return"
+            })
+        }
+        return segs
+    }, [flight, returnFlight])
+
+    const fetchSeatMap = async (targetFlight: Flight) => {
         setLoading(true)
         setError(null)
+        setSeatMaps([]) // Clear previous maps
         try {
             const res = await fetch("/api/flights/seatmap", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ flightOffer: (flight as any).rawOffer })
+                body: JSON.stringify({ flightOffer: (targetFlight as any).rawOffer })
             })
 
             const data = await res.json()
@@ -69,8 +82,9 @@ export function StepSeats({ selection, onChange, flight, passengerName = "Passen
 
     const handleOpenSheet = (segmentId: string) => {
         setActiveSegment(segmentId)
-        if (seatMaps.length === 0) {
-            fetchSeatMap()
+        const targetFlight = segmentId === flight?.id ? flight : returnFlight
+        if (targetFlight) {
+            fetchSeatMap(targetFlight)
         }
     }
 

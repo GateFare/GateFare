@@ -12,12 +12,14 @@ import type { Flight } from "@/lib/mock-data"
 
 interface BookingWizardProps {
     flight: Flight
+    returnFlight?: Flight | null
     passengerCount: number
     date?: string
+    returnDate?: string
     onClose: () => void
 }
 
-export function BookingWizard({ flight, passengerCount, date, onClose }: BookingWizardProps) {
+export function BookingWizard({ flight, returnFlight, passengerCount, date, returnDate, onClose }: BookingWizardProps) {
     const [step, setStep] = useState(1)
     const [error, setError] = useState("")
     const [loading, setLoading] = useState(false)
@@ -130,6 +132,10 @@ export function BookingWizard({ flight, passengerCount, date, onClose }: Booking
     const calculateTotal = () => {
         let total = flight.price * passengers.length
 
+        if (returnFlight) {
+            total += returnFlight.price * passengers.length
+        }
+
         passengers.forEach(p => {
             if (p.baggage === "add") total += 50
             if (p.ticketExchange) total += 54
@@ -146,10 +152,8 @@ export function BookingWizard({ flight, passengerCount, date, onClose }: Booking
         if (couponApplied && discount > 0) {
             total = total * (1 - discount)
         }
-
-        return Math.round(total)
+        return total
     }
-
     const handleNext = () => {
         if (step === 1) {
             const isValid = passengers.every(p => p.firstName && p.lastName) && passengers[0].email
@@ -206,6 +210,19 @@ export function BookingWizard({ flight, passengerCount, date, onClose }: Booking
                         date: date || new Date().toISOString().split('T')[0],
                         duration: flight.duration,
                         basePrice: flight.price,
+                        returnFlight: returnFlight ? {
+                            airline: returnFlight.airline,
+                            flightNumber: returnFlight.flightNumber,
+                            from: returnFlight.departure.city,
+                            fromCode: returnFlight.departure.code,
+                            departureTime: returnFlight.departure.time,
+                            to: returnFlight.arrival.city,
+                            toCode: returnFlight.arrival.code,
+                            arrivalTime: returnFlight.arrival.time,
+                            date: returnDate,
+                            duration: returnFlight.duration,
+                            basePrice: returnFlight.price,
+                        } : null,
                         totalPrice: calculateTotal()
                     },
                     passengers,
@@ -263,6 +280,7 @@ export function BookingWizard({ flight, passengerCount, date, onClose }: Booking
                             Flight Summary
                         </h3>
                         <div className="grid md:grid-cols-2 gap-4 text-sm">
+                            <div className="md:col-span-2 font-semibold text-blue-600 border-b border-blue-100 pb-1 mb-1">Outbound</div>
                             <div className="flex justify-between border-b border-slate-100 pb-2">
                                 <span className="text-slate-600">Route:</span>
                                 <span className="font-semibold text-slate-900">{flight.departure.city} → {flight.arrival.city}</span>
@@ -279,7 +297,30 @@ export function BookingWizard({ flight, passengerCount, date, onClose }: Booking
                                 <span className="text-slate-600">Arrival:</span>
                                 <span className="font-semibold text-slate-900">{flight.arrival.time}</span>
                             </div>
-                            <div className="flex justify-between md:col-span-2 pt-2 border-t-2 border-blue-100">
+
+                            {returnFlight && (
+                                <>
+                                    <div className="md:col-span-2 font-semibold text-blue-600 border-b border-blue-100 pb-1 mb-1 mt-2">Return</div>
+                                    <div className="flex justify-between border-b border-slate-100 pb-2">
+                                        <span className="text-slate-600">Route:</span>
+                                        <span className="font-semibold text-slate-900">{returnFlight.departure.city} → {returnFlight.arrival.city}</span>
+                                    </div>
+                                    <div className="flex justify-between border-b border-slate-100 pb-2">
+                                        <span className="text-slate-600">Flight:</span>
+                                        <span className="font-semibold text-slate-900">{returnFlight.airline} {returnFlight.flightNumber}</span>
+                                    </div>
+                                    <div className="flex justify-between border-b border-slate-100 pb-2">
+                                        <span className="text-slate-600">Departure:</span>
+                                        <span className="font-semibold text-slate-900">{returnFlight.departure.time}</span>
+                                    </div>
+                                    <div className="flex justify-between border-b border-slate-100 pb-2">
+                                        <span className="text-slate-600">Arrival:</span>
+                                        <span className="font-semibold text-slate-900">{returnFlight.arrival.time}</span>
+                                    </div>
+                                </>
+                            )}
+
+                            <div className="flex justify-between md:col-span-2 pt-2 border-t-2 border-blue-100 mt-2">
                                 <span className="text-slate-700 font-semibold">Total Amount:</span>
                                 <span className="font-bold text-2xl text-blue-600">${calculateTotal()}</span>
                             </div>
@@ -354,7 +395,7 @@ export function BookingWizard({ flight, passengerCount, date, onClose }: Booking
 
                 <div className="flex-1 overflow-y-auto overscroll-contain px-4 md:px-8 py-6" data-lenis-prevent="true">
                     {step === 1 && <StepPassenger passengers={passengers} onChange={updatePassenger} />}
-                    {step === 2 && <StepSeats selection={seats} onChange={setSeats} flight={flight} passengerName={`${passengers[0].firstName} ${passengers[0].lastName}`} />}
+                    {step === 2 && <StepSeats selection={seats} onChange={setSeats} flight={flight} returnFlight={returnFlight} passengerName={`${passengers[0].firstName} ${passengers[0].lastName}`} />}
                     {step === 3 && <StepAddons selection={addons} onChange={setAddons} />}
                     {step === 4 && (
                         <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -368,7 +409,7 @@ export function BookingWizard({ flight, passengerCount, date, onClose }: Booking
                                 <div className="bg-slate-50 px-4 py-3 border-b flex justify-between items-center">
                                     <span className="font-semibold text-slate-700 flex items-center gap-2">
                                         <span className="bg-blue-100 text-blue-600 p-1 rounded-md text-xs font-bold">{flight.airlineCode}</span>
-                                        {flight.airline}
+                                        {flight.airline} <span className="text-xs text-slate-500 font-normal ml-2">(Outbound)</span>
                                     </span>
                                     <span className="text-xs text-slate-500 font-mono">{flight.flightNumber}</span>
                                 </div>
@@ -390,6 +431,35 @@ export function BookingWizard({ flight, passengerCount, date, onClose }: Booking
                                     </div>
                                 </div>
                             </div>
+
+                            {returnFlight && (
+                                <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
+                                    <div className="bg-slate-50 px-4 py-3 border-b flex justify-between items-center">
+                                        <span className="font-semibold text-slate-700 flex items-center gap-2">
+                                            <span className="bg-blue-100 text-blue-600 p-1 rounded-md text-xs font-bold">{returnFlight.airlineCode}</span>
+                                            {returnFlight.airline} <span className="text-xs text-slate-500 font-normal ml-2">(Return)</span>
+                                        </span>
+                                        <span className="text-xs text-slate-500 font-mono">{returnFlight.flightNumber}</span>
+                                    </div>
+                                    <div className="p-4 grid grid-cols-[1fr,auto,1fr] gap-4 items-center">
+                                        <div>
+                                            <div className="text-2xl font-bold text-slate-900">{returnFlight.departure.time}</div>
+                                            <div className="text-sm text-slate-500">{returnFlight.departure.city}</div>
+                                        </div>
+                                        <div className="flex flex-col items-center">
+                                            <div className="text-xs text-slate-400 mb-1">{returnFlight.duration}</div>
+                                            <div className="w-24 h-[1px] bg-slate-300 relative">
+                                                <div className="absolute -top-1 right-0 w-2 h-2 border-t border-r border-slate-300 rotate-45"></div>
+                                            </div>
+                                            <div className="text-xs text-blue-600 font-medium mt-1">{returnFlight.stops === 0 ? "Direct" : `${returnFlight.stops} Stop(s)`}</div>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="text-2xl font-bold text-slate-900">{returnFlight.arrival.time}</div>
+                                            <div className="text-sm text-slate-500">{returnFlight.arrival.city}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             {/* Passenger & Services Grid */}
                             <div className="grid md:grid-cols-2 gap-4">
@@ -517,9 +587,15 @@ export function BookingWizard({ flight, passengerCount, date, onClose }: Booking
                         <h3 className="font-bold text-slate-900 mb-3">Price Details</h3>
                         <div className="space-y-2 text-sm">
                             <div className="flex justify-between text-slate-600">
-                                <span>Base Fare x {passengers.length}</span>
+                                <span>Outbound Fare x {passengers.length}</span>
                                 <span>${flight.price * passengers.length}</span>
                             </div>
+                            {returnFlight && (
+                                <div className="flex justify-between text-slate-600">
+                                    <span>Return Fare x {passengers.length}</span>
+                                    <span>${returnFlight.price * passengers.length}</span>
+                                </div>
+                            )}
 
                             {/* Seat Selection */}
                             {seats.price > 0 && (
