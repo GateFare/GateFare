@@ -1,3 +1,4 @@
+import React from 'react';
 import { Plane, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { Flight } from "@/lib/mock-data"
@@ -7,8 +8,8 @@ interface FlightCardProps {
     onBook: (flight: Flight) => void
 }
 
-// Helper to get airline logo URL
-const getAirlineLogo = (airlineName: string) => {
+// Helper to get airline logo URLs from multiple sources
+const getAirlineLogos = (airlineName: string, airlineCode: string) => {
     const domainMap: Record<string, string> = {
         "United Airlines": "united.com",
         "American Airlines": "aa.com",
@@ -67,36 +68,57 @@ const getAirlineLogo = (airlineName: string) => {
         "LATAM Airlines": "latamairlines.com",
     }
 
-    const domain = domainMap[airlineName]
+    const logoSources = [];
+
+    // Source 1: Alternative logo CDN using IATA code - FIRST as most reliable
+    logoSources.push(`https://images.kiwi.com/airlines/64/${airlineCode}.png`);
+
+    // Source 2: Clearbit (via domain) - SECOND as fallback
+    const domain = domainMap[airlineName];
     if (domain) {
-        return `https://logo.clearbit.com/${domain}`
+        logoSources.push(`https://logo.clearbit.com/${domain}`);
     }
-    return null
+
+    return logoSources;
 }
 
 export function FlightCard({ flight, onBook }: FlightCardProps) {
-    const logoUrl = getAirlineLogo(flight.airline)
+    const logoSources = getAirlineLogos(flight.airline, flight.airlineCode);
+    const [currentLogoIndex, setCurrentLogoIndex] = React.useState(0);
+    const [logoFailed, setLogoFailed] = React.useState(false);
+
+    const handleLogoError = () => {
+        // Try next logo source
+        if (currentLogoIndex < logoSources.length - 1) {
+            setCurrentLogoIndex(prev => prev + 1);
+        } else {
+            // All sources failed, show airline code
+            setLogoFailed(true);
+        }
+    };
+
+    const currentLogoUrl = !logoFailed && logoSources[currentLogoIndex];
 
     return (
         <div className="bg-white rounded-xl border border-blue-100 shadow-sm hover:shadow-md transition-all p-6 mb-4">
             <div className="flex flex-col md:flex-row justify-between items-center gap-6">
                 {/* Airline Info */}
                 <div className="flex items-center gap-4 w-full md:w-1/4">
-                    <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center bg-white rounded-full overflow-hidden border border-slate-100">
-                        {logoUrl ? (
+                    <div className="w-16 h-16 flex-shrink-0 flex items-center justify-center bg-gradient-to-br from-blue-500 to-blue-600 rounded-full overflow-hidden border-2 border-blue-300 shadow-lg">
+                        {currentLogoUrl ? (
                             <img
-                                src={logoUrl}
-                                alt={flight.airline}
-                                className="w-full h-full object-contain p-2"
-                                onError={(e) => {
-                                    e.currentTarget.style.display = 'none'
-                                    e.currentTarget.nextElementSibling?.classList.remove('hidden')
-                                }}
+                                key={currentLogoIndex}
+                                src={currentLogoUrl}
+                                alt={`${flight.airline} logo`}
+                                className="w-full h-full object-contain p-2 bg-white"
+                                onError={handleLogoError}
+                                loading="lazy"
                             />
-                        ) : null}
-                        <div className={`w-full h-full bg-blue-50 flex items-center justify-center text-blue-600 font-bold text-lg ${logoUrl ? 'hidden' : ''}`}>
-                            {flight.airlineCode}
-                        </div>
+                        ) : (
+                            <div className="w-full h-full flex items-center justify-center text-white font-bold text-xl">
+                                {flight.airlineCode}
+                            </div>
+                        )}
                     </div>
                     <div>
                         <h3 className="font-semibold text-slate-900 text-xl">{flight.airline}</h3>
